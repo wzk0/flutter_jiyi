@@ -44,7 +44,7 @@ class _AltDialogWidgetState extends State<AltDialogWidget> {
             decoration: InputDecoration(
               labelText: '名称',
               hintText: _nameController.text,
-              border: OutlineInputBorder()
+              border: OutlineInputBorder(),
             ),
           ),
           TextField(
@@ -52,7 +52,7 @@ class _AltDialogWidgetState extends State<AltDialogWidget> {
             decoration: InputDecoration(
               labelText: '金额',
               hintText: _moneyController.text,
-              border: OutlineInputBorder()
+              border: OutlineInputBorder(),
             ),
           ),
         ],
