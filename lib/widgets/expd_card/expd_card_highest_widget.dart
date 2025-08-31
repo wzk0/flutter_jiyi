@@ -4,12 +4,13 @@ class ExpdCardHighestWidget extends StatelessWidget {
   final double money;
   final String descr;
   final Color bgcolor;
+  final Color txcolor;
 
   const ExpdCardHighestWidget({
     super.key,
     required this.money,
     required this.descr,
-    required this.bgcolor,
+    required this.bgcolor, required this.txcolor,
   });
 
   @override
@@ -22,7 +23,7 @@ class ExpdCardHighestWidget extends StatelessWidget {
           child: Column(
             spacing: 5,
             children: [
-              Text('¥ $money', style: TextStyle(fontSize: 26)),
+              Text('¥ $money', style: TextStyle(fontSize: 26, color: txcolor)),
               Text(
                 descr,
                 style: TextStyle(

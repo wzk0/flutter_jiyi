@@ -139,11 +139,13 @@ class _DrawerWidgetState extends State<DrawerWidget> {
                       money: 200,
                       descr: '最高的一笔收入',
                       bgcolor: Theme.of(context).colorScheme.tertiaryContainer,
+                      txcolor: Theme.of(context).colorScheme.tertiary,
                     ),
                     ExpdCardHighestWidget(
                       money: 100,
                       descr: '最高的一笔支出',
                       bgcolor: Theme.of(context).colorScheme.primaryContainer,
+                      txcolor: Theme.of(context).colorScheme.primary,
                     ),
                   ],
                 ),

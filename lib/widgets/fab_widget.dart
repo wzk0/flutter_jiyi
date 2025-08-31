@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:jiyi/models/transcation.dart';
 import 'package:jiyi/widgets/alt_dialog_widget.dart';
 
 class Fab extends StatelessWidget {
@@ -11,7 +12,7 @@ class Fab extends StatelessWidget {
         showDialog(
           context: context,
           builder: (context) {
-            return AltDialogWidget(title: '记一笔账');
+            return AltDialogWidget(title: '记一笔账', transaction: Transaction(name: '123', money: 100),);
           },
         );
       },
