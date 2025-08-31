@@ -1,0 +1,3 @@
+android/**.cpp linguist-vendored
+ios/**.mm linguist-vendored
+windows/**.cpp linguist-vendored

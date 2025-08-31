@@ -1,6 +1,6 @@
-# jiyi
+# 记易
 
-A new Flutter project.
+使用Flutter构建的全平台记账软件. 简洁, 美观, 让记账更容易.
 
 ## Getting Started
 
