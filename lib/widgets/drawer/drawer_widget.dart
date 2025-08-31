@@ -26,6 +26,7 @@ class _DrawerWidgetState extends State<DrawerWidget> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                SizedBox(),
                 Row(
                   spacing: 15,
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -109,7 +110,6 @@ class _DrawerWidgetState extends State<DrawerWidget> {
                 ),
                 Divider(),
                 DrawerTitleWidget(actions: '统计'),
-                //FilledButton.tonal(onPressed: () {}, child: Icon(Icons.alarm)),
                 Row(
                   children: [
                     ExpdCardWidget(
@@ -137,7 +137,7 @@ class _DrawerWidgetState extends State<DrawerWidget> {
                 Divider(),
                 DrawerTitleWidget(actions: '至今'),
                 Row(
-                  spacing: 10,
+                  spacing: 5,
                   children: [
                     ExpdCardHighestWidget(
                       money: 200,
@@ -163,7 +163,7 @@ class _DrawerWidgetState extends State<DrawerWidget> {
                 FilledButton.tonalIcon(
                   onPressed: () {},
                   icon: Icon(Icons.lightbulb),
-                  label: Text('AI分析'),
+                  label: Text('智能分析'),
                 ),
               ],
             ),

@@ -2,16 +2,17 @@ class Transaction {
   //final String id;
   final String name;
   final double money;
+  final String date;
+  final TransactionType type;
   //final String category;
   //final DateTime date;
 
   Transaction({
-    //required this.id,
+    required this.date,
     required this.name,
     required this.money,
-    //required this.category,
-    //required this.date,
+    required this.type,
   });
-
-  // 这里可以添加其他方法...
 }
+
+enum TransactionType { income, expense }
