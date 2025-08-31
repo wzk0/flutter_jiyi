@@ -1,8 +1,9 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:jiyi/widgets/expd_card/expd_card_highest_widget.dart';
-import 'package:jiyi/widgets/expd_card/expd_card_listtile_widget.dart';
-import 'package:jiyi/widgets/expd_card/expd_card_widget.dart';
+import 'package:jiyi/widgets/drawer/drawer_title_widget.dart';
+import 'package:jiyi/widgets/drawer/expd_card/expd_card_highest_widget.dart';
+import 'package:jiyi/widgets/drawer/expd_card/expd_card_listtile_widget.dart';
+import 'package:jiyi/widgets/drawer/expd_card/expd_card_widget.dart';
 import 'package:jiyi/widgets/tag_widget.dart';
 
 class DrawerWidget extends StatefulWidget {
@@ -23,6 +24,7 @@ class _DrawerWidgetState extends State<DrawerWidget> {
             child: Column(
               spacing: 10,
               mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   spacing: 15,
@@ -106,6 +108,7 @@ class _DrawerWidgetState extends State<DrawerWidget> {
                   ],
                 ),
                 Divider(),
+                DrawerTitleWidget(actions: '统计'),
                 //FilledButton.tonal(onPressed: () {}, child: Icon(Icons.alarm)),
                 Row(
                   children: [
@@ -114,7 +117,7 @@ class _DrawerWidgetState extends State<DrawerWidget> {
                       child: ExpdCardListtileWidget(
                         title: '¥ 100.00',
                         subtitle: '共 10 笔',
-                        leading: '累计收入',
+                        leading: '收入',
                       ),
                     ),
                   ],
@@ -126,12 +129,13 @@ class _DrawerWidgetState extends State<DrawerWidget> {
                       child: ExpdCardListtileWidget(
                         title: '¥ 100.00',
                         subtitle: '共 10 笔',
-                        leading: '累计支出',
+                        leading: '支出',
                       ),
                     ),
                   ],
                 ),
                 Divider(),
+                DrawerTitleWidget(actions: '至今'),
                 Row(
                   spacing: 10,
                   children: [
@@ -150,7 +154,17 @@ class _DrawerWidgetState extends State<DrawerWidget> {
                   ],
                 ),
                 Divider(),
-                TextButton(onPressed: () {}, child: Text('数据导出')),
+                DrawerTitleWidget(actions: '操作'),
+                FilledButton.tonalIcon(
+                  onPressed: () {},
+                  icon: Icon(Icons.data_array),
+                  label: Text('数据管理'),
+                ),
+                FilledButton.tonalIcon(
+                  onPressed: () {},
+                  icon: Icon(Icons.lightbulb),
+                  label: Text('AI分析'),
+                ),
               ],
             ),
           ),

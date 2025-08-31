@@ -28,17 +28,17 @@ class _AtcListState extends State<ItemListWidget> {
           money: 100.00,
         ),
         ItemCardWidget(
-          title: '红包',
+          title: '冰红茶',
           date: '2025-08-28 18:54',
           icon: Icons.money,
-          isCost: false,
+          isCost: true,
           money: 100.00,
         ),
         ItemCardWidget(
-          title: '红包',
+          title: '冰红茶',
           date: '2025-08-28 18:54',
           icon: Icons.money,
-          isCost: false,
+          isCost: true,
           money: 100.00,
         ),
         ItemCardWidget(

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:jiyi/widgets/drawer_widget.dart';
+import 'package:jiyi/widgets/drawer/drawer_widget.dart';
 import 'package:jiyi/widgets/item/item_list_widget.dart';
 import 'package:jiyi/widgets/btm_appbar_widget.dart';
 import 'package:jiyi/widgets/fab_widget.dart';
