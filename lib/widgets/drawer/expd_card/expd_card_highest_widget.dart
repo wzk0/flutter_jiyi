@@ -10,14 +10,18 @@ class ExpdCardHighestWidget extends StatelessWidget {
     super.key,
     required this.money,
     required this.descr,
-    required this.bgcolor, required this.txcolor,
+    required this.bgcolor,
+    required this.txcolor,
   });
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: Card(
-        color: bgcolor,
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          color: bgcolor,
+        ),
         child: Padding(
           padding: const EdgeInsets.all(20),
           child: Column(

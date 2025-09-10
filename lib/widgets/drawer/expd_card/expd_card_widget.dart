@@ -14,7 +14,7 @@ class ExpdCardWidget extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           color: bgcolor,
         ),
-        padding: EdgeInsets.all(10),
+        padding: EdgeInsets.all(25),
         child: child,
       ),
     );

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:jiyi/models/transcation.dart';
+import 'package:jiyi/models/transaction.dart';
 
 class AltDialogWidget extends StatefulWidget {
   final String title;
@@ -16,31 +16,40 @@ class _AltDialogWidgetState extends State<AltDialogWidget> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _moneyController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
+  late DateTime _selectedDate;
+
+  // 修正：添加类型状态变量
+  late TransactionType _transactionType;
 
   @override
   void initState() {
     super.initState();
     if (widget.transaction != null) {
       _nameController.text = widget.transaction!.name;
-      _dateController.text = widget.transaction!.date;
       _moneyController.text = widget.transaction!.money.toString();
+      _selectedDate = widget.transaction!.date;
+      _transactionType = widget.transaction!.type; // 从现有交易获取类型
     } else {
       _nameController.text = '';
       _moneyController.text = '';
-      DateTime now = DateTime.now();
-      String date = DateFormat('yyyy-M-d H:m').format(now);
-      _dateController.text = date;
+      _selectedDate = DateTime.now();
+      _transactionType = TransactionType.expense; // 默认支出
     }
+    _dateController.text = _formatDate(_selectedDate);
+  }
+
+  String _formatDate(DateTime date) {
+    return DateFormat('yyyy年M月d日 HH点mm分').format(date);
   }
 
   @override
   void dispose() {
     _nameController.dispose();
     _moneyController.dispose();
+    _dateController.dispose();
     super.dispose();
   }
 
-  TransactionType _transactionType = TransactionType.expense;
   bool iconColor = true;
 
   @override
@@ -76,7 +85,7 @@ class _AltDialogWidgetState extends State<AltDialogWidget> {
                     label: Text('收入'),
                   ),
                 ],
-                selected: {_transactionType},
+                selected: {_transactionType}, // 修正：使用当前选中的类型
                 onSelectionChanged: (Set<TransactionType> newSelection) {
                   setState(() {
                     _transactionType = newSelection.first;
@@ -90,7 +99,6 @@ class _AltDialogWidgetState extends State<AltDialogWidget> {
             controller: _nameController,
             decoration: InputDecoration(
               labelText: '名称',
-              hintText: _nameController.text,
               border: OutlineInputBorder(),
             ),
           ),
@@ -98,31 +106,57 @@ class _AltDialogWidgetState extends State<AltDialogWidget> {
             controller: _moneyController,
             decoration: InputDecoration(
               labelText: '金额',
-              hintText: _moneyController.text,
               border: OutlineInputBorder(),
             ),
+            keyboardType: TextInputType.number,
           ),
           TextField(
             controller: _dateController,
             readOnly: true,
             decoration: InputDecoration(
-              //icon: Icon(Icons.calendar_month_outlined),
               label: Icon(
                 Icons.calendar_month,
                 color: Theme.of(context).colorScheme.outline,
               ),
-              //labelText: '日期',
-              hintText: _moneyController.text,
               border: OutlineInputBorder(),
             ),
           ),
-          IconButton(onPressed: () {}, icon: Icon(Icons.person)),
         ],
       ),
       actions: [
-        FilledButton(onPressed: () {}, child: Text('保存')),
-        TextButton(onPressed: () {}, child: Text('取消')),
+        TextButton(onPressed: () => Navigator.pop(context), child: Text('取消')),
+        FilledButton(onPressed: _saveTransaction, child: Text('保存')),
       ],
     );
+  }
+
+  void _saveTransaction() {
+    // 移除名称必填检查
+    if (_moneyController.text.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('请填写金额')));
+      return;
+    }
+
+    try {
+      double money = double.parse(_moneyController.text);
+
+      Transaction transaction = Transaction(
+        id: widget.transaction?.id,
+        name: _nameController.text.isEmpty
+            ? '未命名账目'
+            : _nameController.text, // 修正：名称为空时设为默认值
+        money: money,
+        date: _selectedDate,
+        type: _transactionType,
+      );
+
+      Navigator.pop(context, transaction);
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('金额格式错误')));
+    }
   }
 }

@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:jiyi/data/notifier.dart';
 import 'package:jiyi/views/widget_tree.dart';
+import 'package:jiyi/services/database_service.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // 简单初始化，适用于移动端
+  await DatabaseService.instance.database;
+
   runApp(const MyApp());
 }
 
@@ -16,19 +21,20 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder(
-      valueListenable: isDarkMode,
-      builder: (context, value, child) {
-        return MaterialApp(
-          theme: ThemeData(
-            colorSchemeSeed: Colors.orange,
-            brightness: value ? Brightness.dark : Brightness.light,
-            useMaterial3: true,
-          ),
-          title: '记易',
-          home: WidgetTree(),
-        );
-      },
+    return MaterialApp(
+      theme: ThemeData(
+        colorSchemeSeed: Colors.orange,
+        brightness: Brightness.light,
+        useMaterial3: true,
+      ),
+      darkTheme: ThemeData(
+        colorSchemeSeed: Colors.orange,
+        brightness: Brightness.dark,
+        useMaterial3: true,
+      ),
+      themeMode: ThemeMode.system,
+      title: '记易',
+      home: WidgetTree(),
     );
   }
 }

@@ -1,82 +1,41 @@
 import 'package:flutter/material.dart';
+import 'package:jiyi/models/transaction.dart';
 import 'package:jiyi/widgets/item/item_card_widget.dart';
 
-class ItemListWidget extends StatefulWidget {
-  const ItemListWidget({super.key});
+class ItemListWidget extends StatelessWidget {
+  final List<Transaction> transactions;
+  final Function(Transaction)? onEdit; // 添加编辑回调
+  final Function(Transaction)? onDelete; // 添加删除回调
 
-  @override
-  State<ItemListWidget> createState() => _AtcListState();
-}
+  const ItemListWidget({
+    super.key,
+    required this.transactions,
+    this.onEdit,
+    this.onDelete,
+  });
 
-class _AtcListState extends State<ItemListWidget> {
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      children: [
-        ItemCardWidget(
-          title: '冰红茶',
-          date: '2025-08-28 18:54',
-          icon: Icons.money,
-          isCost: true,
-          money: 100.00,
+    if (transactions.isEmpty) {
+      return Center(
+        child: Text(
+          '暂无交易记录',
+          style: TextStyle(color: Theme.of(context).colorScheme.primary),
         ),
-        ItemCardWidget(
-          title: '红包',
-          date: '2025-08-28 18:54',
-          icon: Icons.money,
-          isCost: false,
-          money: 100.00,
-        ),
-        ItemCardWidget(
-          title: '冰红茶',
-          date: '2025-08-28 18:54',
-          icon: Icons.money,
-          isCost: true,
-          money: 100.00,
-        ),
-        ItemCardWidget(
-          title: '冰红茶',
-          date: '2025-08-28 18:54',
-          icon: Icons.money,
-          isCost: true,
-          money: 100.00,
-        ),
-        ItemCardWidget(
-          title: '红包',
-          date: '2025-08-28 18:54',
-          icon: Icons.money,
-          isCost: false,
-          money: 100.00,
-        ),
-        ItemCardWidget(
-          title: '红包',
-          date: '2025-08-28 18:54',
-          icon: Icons.money,
-          isCost: false,
-          money: 100.00,
-        ),
-        ItemCardWidget(
-          title: '红包',
-          date: '2025-08-28 18:54',
-          icon: Icons.money,
-          isCost: false,
-          money: 100.00,
-        ),
-        ItemCardWidget(
-          title: '红包',
-          date: '2025-08-28 18:54',
-          icon: Icons.money,
-          isCost: false,
-          money: 100.00,
-        ),
-        ItemCardWidget(
-          title: '红包',
-          date: '2025-08-28 18:54',
-          icon: Icons.money,
-          isCost: false,
-          money: 100.00,
-        ),
-      ],
+      );
+    }
+
+    return ListView.builder(
+      itemCount: transactions.length,
+      itemBuilder: (context, index) {
+        return ItemCardWidget(
+          transaction: transactions[index],
+          onEdit: onEdit != null ? () => onEdit!(transactions[index]) : null,
+          onDelete: onDelete != null
+              ? () => onDelete!(transactions[index])
+              : null,
+        );
+      },
     );
   }
 }
