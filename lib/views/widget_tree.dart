@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:jiyi/widgets/drawer/drawer_widget.dart';
-import 'package:jiyi/widgets/item/item_list_widget.dart';
-import 'package:jiyi/widgets/btm_appbar_widget.dart';
-import 'package:jiyi/widgets/fab_widget.dart';
+import 'package:jiyi/views/home_page/drawer/drawer_widget.dart';
+import 'package:jiyi/views/home_page/item/item_list_widget.dart';
+import 'package:jiyi/views/home_page/btm_appbar_widget.dart';
+import 'package:jiyi/views/home_page/fab_widget.dart';
 import 'package:jiyi/models/transaction.dart';
 import 'package:jiyi/services/database_service.dart';
-import 'package:jiyi/widgets/alt_dialog_widget.dart'; // 添加这个导入
+import 'package:jiyi/views/home_page/alt_dialog_widget.dart'; // 添加这个导入
 
 class WidgetTree extends StatefulWidget {
   const WidgetTree({super.key});

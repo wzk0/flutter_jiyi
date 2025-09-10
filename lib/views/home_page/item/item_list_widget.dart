@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:jiyi/models/transaction.dart';
-import 'package:jiyi/widgets/item/item_card_widget.dart';
+import 'package:jiyi/views/home_page/item/item_card_widget.dart';
 
 class ItemListWidget extends StatelessWidget {
   final List<Transaction> transactions;

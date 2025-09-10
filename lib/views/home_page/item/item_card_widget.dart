@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:jiyi/models/transaction.dart';
-import 'package:jiyi/widgets/tag_widget.dart';
+import 'package:jiyi/views/home_page/tag_widget.dart';
 
 class ItemCardWidget extends StatelessWidget {
   final Transaction transaction;

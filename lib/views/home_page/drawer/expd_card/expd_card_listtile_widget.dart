@@ -30,8 +30,17 @@ class ExpdCardListtileWidget extends StatelessWidget {
       children: [
         Icon(icon, color: color),
         SizedBox(height: 30, child: VerticalDivider()),
-        Text(title, style: TextStyle(fontSize: 16, color: color)),
-        Text(subtitle, style: TextStyle(color: color)),
+        Text(
+          title,
+          style: TextStyle(
+            fontSize: 16,
+            color: Theme.of(context).colorScheme.outline,
+          ),
+        ),
+        Text(
+          subtitle,
+          style: TextStyle(color: Theme.of(context).colorScheme.outline),
+        ),
       ],
     );
   }

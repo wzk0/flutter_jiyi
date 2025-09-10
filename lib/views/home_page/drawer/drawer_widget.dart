@@ -1,10 +1,10 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:jiyi/widgets/drawer/drawer_title_widget.dart';
-import 'package:jiyi/widgets/drawer/expd_card/expd_card_highest_widget.dart';
-import 'package:jiyi/widgets/drawer/expd_card/expd_card_listtile_widget.dart';
-import 'package:jiyi/widgets/drawer/expd_card/expd_card_widget.dart';
-import 'package:jiyi/widgets/tag_widget.dart';
+import 'package:jiyi/views/home_page/drawer/drawer_title_widget.dart';
+import 'package:jiyi/views/home_page/drawer/expd_card/expd_card_highest_widget.dart';
+import 'package:jiyi/views/home_page/drawer/expd_card/expd_card_listtile_widget.dart';
+import 'package:jiyi/views/home_page/drawer/expd_card/expd_card_widget.dart';
+import 'package:jiyi/views/home_page/tag_widget.dart';
 import 'package:jiyi/models/transaction.dart';
 import 'package:jiyi/services/database_service.dart';
 

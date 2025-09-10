@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:jiyi/widgets/alt_dialog_widget.dart';
+import 'package:jiyi/views/home_page/alt_dialog_widget.dart';
 import 'package:jiyi/models/transaction.dart';
 import 'package:jiyi/services/database_service.dart';
 
