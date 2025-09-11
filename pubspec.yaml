@@ -16,6 +16,8 @@ dependencies:
   path: ^1.9.1
   path_provider: ^2.1.5
   shared_preferences: ^2.5.3
+  url_launcher: ^6.3.2
+  flutter_launcher_icons: ^0.14.4
 
 dev_dependencies:
   flutter_test:
@@ -29,3 +31,11 @@ flutter:
 
   assets:
       - assets/icon/1024.png
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/icon/1024.png"
+  adaptive_icon_monochrome: "assets/icon/1024.png"
+  adaptive_icon_background: "#000000"
+  adaptive_icon_foreground: "assets/icon/1024.png"

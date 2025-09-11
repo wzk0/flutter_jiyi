@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -54,6 +55,22 @@ class _SettingsPageState extends State<SettingsPage> {
     return Colors.orange;
   }
 
+  Future<void> _launchInBrowser(String url) async {
+    final Uri uri = Uri.parse(url);
+    try {
+      // 强制使用外部应用（系统浏览器）打开
+      if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+        throw Exception('Could not launch $url');
+      }
+    } catch (e) {
+      debugPrint('Error launching URL: $e');
+      // 可以显示错误提示
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   SnackBar(content: Text('无法打开浏览器')),
+      // );
+    }
+  }
+
   // 获取颜色值
 
   @override
@@ -62,27 +79,61 @@ class _SettingsPageState extends State<SettingsPage> {
       appBar: AppBar(title: Text('设置')),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
-        child: ListView(
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(30),
-                color: Theme.of(context).colorScheme.secondaryContainer,
-              ),
-              child: Theme(
-                data: Theme.of(context).copyWith(
-                  dividerColor: Colors.transparent,
-                  splashFactory: NoSplash.splashFactory,
+        child: Theme(
+          data: ThemeData(
+            splashColor: Colors.transparent,
+            highlightColor: Colors.transparent,
+          ),
+          child: ListView(
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(30),
+                  color: Theme.of(context).colorScheme.secondaryContainer,
                 ),
-                child: ExpansionTile(
-                  title: Text('主题色'),
-                  leading: Icon(Icons.color_lens),
-                  children: _buildColorOptions(),
+                child: Theme(
+                  data: Theme.of(context).copyWith(
+                    dividerColor: Colors.transparent,
+                    splashFactory: NoSplash.splashFactory,
+                  ),
+                  child: ExpansionTile(
+                    title: Text('主题色'),
+                    leading: Icon(Icons.color_lens_outlined),
+                    children: _buildColorOptions(),
+                  ),
                 ),
               ),
-            ),
-            Divider(height: 40),
-          ],
+              Divider(height: 40),
+              ListTile(
+                leading: Icon(Icons.tips_and_updates_outlined),
+                title: Text('提示'),
+              ),
+              ListTile(
+                leading: Icon(Icons.info_outline),
+                title: Text('关于'),
+                onTap: () {
+                  showAboutDialog(
+                    context: context,
+                    applicationName: '记易',
+                    applicationVersion: '1.0.0',
+                    applicationLegalese: '© 2025 thdbd',
+                    applicationIcon: Icon(
+                      Icons.money,
+                      color: Theme.of(context).colorScheme.primary,
+                      size: 40,
+                    ),
+                  );
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.code),
+                title: Text('源代码'),
+                onTap: () {
+                  _launchInBrowser('https://github.com/wzk0/flutter_jiyi');
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );
