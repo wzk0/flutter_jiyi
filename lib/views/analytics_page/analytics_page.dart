@@ -111,8 +111,24 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
           _buildOverviewCard(stats),
           //const SizedBox(height: 10),
 
+          // 最高收入支出展示
+          _buildHighestTransactionsCard(filteredTransactions),
+          //const SizedBox(height: 10),
+
           // 收支对比图表
           _buildIncomeExpenseChart(stats),
+          //const SizedBox(height: 20),
+
+          // 收入趋势条形图
+          _buildIncomeTrendChart(filteredTransactions),
+          //const SizedBox(height: 20),
+
+          // 消费趋势条形图
+          _buildExpenseTrendChart(filteredTransactions),
+          //const SizedBox(height: 20),
+
+          // 分类收入饼图
+          _buildCategoryIncomeChart(filteredTransactions),
           //const SizedBox(height: 20),
 
           // 分类支出饼图
@@ -124,6 +140,468 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
         ],
       ),
     );
+  }
+
+  // 构建分类收入饼图
+  Widget _buildCategoryIncomeChart(List<Transaction> transactions) {
+    final categoryData = _calculateCategoryIncome(transactions);
+
+    if (categoryData.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('收入分类', style: TextStyle(fontSize: 16)),
+            const SizedBox(height: 16),
+            SizedBox(
+              height: 200,
+              child: PieChart(
+                PieChartData(
+                  sections: categoryData
+                      .map(
+                        (data) => PieChartSectionData(
+                          value: data.amount,
+                          title: '${data.percentage.toStringAsFixed(1)}%',
+                          titleStyle: TextStyle(
+                            color: Theme.of(context).colorScheme.onPrimary,
+                            fontSize: 12,
+                          ),
+                          color: data.color,
+                          showTitle: true,
+                        ),
+                      )
+                      .toList(),
+                  centerSpaceRadius: 50,
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            // 分类图例
+            Wrap(
+              spacing: 8,
+              runSpacing: 4,
+              children: categoryData
+                  .map(
+                    (data) => Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 12,
+                          height: 12,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            color: data.color,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          '${data.category}: ¥ ${data.amount.toStringAsFixed(2)}',
+                        ),
+                      ],
+                    ),
+                  )
+                  .toList(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // 计算分类收入
+  List<CategoryIncomeData> _calculateCategoryIncome(
+    List<Transaction> transactions,
+  ) {
+    final incomeMap = <String, double>{};
+
+    // 统计各分类收入
+    for (var transaction in transactions) {
+      if (transaction.type == TransactionType.income) {
+        final category = transaction.name; // 这里可以根据你的分类字段调整
+        incomeMap[category] = (incomeMap[category] ?? 0) + transaction.money;
+      }
+    }
+
+    // 如果没有收入数据，返回空列表
+    if (incomeMap.isEmpty) {
+      return [];
+    }
+
+    // 计算总收入
+    final totalIncome = incomeMap.values.fold(
+      0.0,
+      (sum, amount) => sum + amount,
+    );
+
+    final colors = [
+      Theme.of(context).colorScheme.tertiary,
+      Theme.of(context).colorScheme.tertiaryContainer,
+      Theme.of(context).colorScheme.secondary,
+      Theme.of(context).colorScheme.secondaryContainer,
+      Theme.of(context).colorScheme.primary,
+      Theme.of(context).colorScheme.primaryContainer,
+    ];
+
+    final List<CategoryIncomeData> result = [];
+    int index = 0;
+
+    incomeMap.forEach((category, amount) {
+      result.add(
+        CategoryIncomeData(
+          category: category,
+          amount: amount,
+          percentage: totalIncome > 0 ? (amount / totalIncome) * 100 : 0,
+          color: colors[index % colors.length],
+        ),
+      );
+      index++;
+    });
+
+    return result;
+  }
+
+  // 构建消费趋势条形图
+  Widget _buildExpenseTrendChart(List<Transaction> transactions) {
+    final trendData = _calculateExpenseTrend(transactions);
+    final maxValue = trendData.isNotEmpty
+        ? trendData.reduce((a, b) => a > b ? a : b)
+        : 1.0;
+
+    if (trendData.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('支出趋势', style: TextStyle(fontSize: 16)),
+            const SizedBox(height: 16),
+            SizedBox(
+              height: 200,
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: SizedBox(
+                  width: _getTrendChartWidth(trendData.length),
+                  child: BarChart(
+                    BarChartData(
+                      alignment: BarChartAlignment.spaceAround,
+                      maxY: maxValue * 1.2, // 给顶部留些空间
+                      barGroups: trendData.asMap().entries.map((entry) {
+                        final index = entry.key;
+                        final value = entry.value;
+                        return BarChartGroupData(
+                          x: index,
+                          barRods: [
+                            BarChartRodData(
+                              toY: value,
+                              color: Theme.of(context).colorScheme.primary,
+                              width: 15,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                          ],
+                        );
+                      }).toList(),
+                      titlesData: FlTitlesData(
+                        bottomTitles: AxisTitles(
+                          sideTitles: SideTitles(
+                            showTitles: true,
+                            getTitlesWidget: (value, meta) {
+                              final index = value.toInt();
+                              if (index >= 0 && index < trendData.length) {
+                                return Text(
+                                  _getTrendLabel(index),
+                                  style: TextStyle(
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.outline,
+                                  ),
+                                );
+                              }
+                              return const Text('');
+                            },
+                            reservedSize: 30,
+                          ),
+                        ),
+                        leftTitles: AxisTitles(
+                          sideTitles: SideTitles(
+                            showTitles: true,
+                            reservedSize: 40,
+                            interval: maxValue > 0 ? maxValue / 5 : 1, // 设置间隔
+                            getTitlesWidget: (value, meta) {
+                              // 格式化纵轴数值
+                              if (value == 0) return const Text('');
+                              return Text(
+                                '${value.toInt()}',
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.outline,
+                                  fontSize: 10,
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                        topTitles: AxisTitles(
+                          sideTitles: SideTitles(showTitles: false), // 移除顶部轴
+                        ),
+                        rightTitles: AxisTitles(
+                          sideTitles: SideTitles(showTitles: false),
+                        ),
+                      ),
+                      borderData: FlBorderData(show: false),
+                      gridData: FlGridData(
+                        show: true,
+                        drawHorizontalLine: true,
+                        drawVerticalLine: false,
+                        horizontalInterval: maxValue > 0 ? maxValue / 5 : 1,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // 构建收入趋势条形图
+  Widget _buildIncomeTrendChart(List<Transaction> transactions) {
+    final trendData = _calculateIncomeTrend(transactions);
+    final maxValue = trendData.isNotEmpty
+        ? trendData.reduce((a, b) => a > b ? a : b)
+        : 1.0;
+
+    if (trendData.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('收入趋势', style: TextStyle(fontSize: 16)),
+            const SizedBox(height: 16),
+            SizedBox(
+              height: 200,
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: SizedBox(
+                  width: _getTrendChartWidth(trendData.length),
+                  child: BarChart(
+                    BarChartData(
+                      alignment: BarChartAlignment.spaceAround,
+                      maxY: maxValue * 1.2, // 给顶部留些空间
+                      barGroups: trendData.asMap().entries.map((entry) {
+                        final index = entry.key;
+                        final value = entry.value;
+                        return BarChartGroupData(
+                          x: index,
+                          barRods: [
+                            BarChartRodData(
+                              toY: value,
+                              color: Theme.of(context).colorScheme.tertiary,
+                              width: 15,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                          ],
+                        );
+                      }).toList(),
+                      titlesData: FlTitlesData(
+                        bottomTitles: AxisTitles(
+                          sideTitles: SideTitles(
+                            showTitles: true,
+                            getTitlesWidget: (value, meta) {
+                              final index = value.toInt();
+                              if (index >= 0 && index < trendData.length) {
+                                return Text(
+                                  _getTrendLabel(index),
+                                  style: TextStyle(
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.outline,
+                                  ),
+                                );
+                              }
+                              return const Text('');
+                            },
+                            reservedSize: 30,
+                          ),
+                        ),
+                        leftTitles: AxisTitles(
+                          sideTitles: SideTitles(
+                            showTitles: true,
+                            reservedSize: 40,
+                            interval: maxValue > 0 ? maxValue / 5 : 1, // 设置间隔
+                            getTitlesWidget: (value, meta) {
+                              // 格式化纵轴数值
+                              if (value == 0) return const Text('');
+                              return Text(
+                                '${value.toInt()}',
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.outline,
+                                  fontSize: 10,
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                        topTitles: AxisTitles(
+                          sideTitles: SideTitles(showTitles: false), // 移除顶部轴
+                        ),
+                        rightTitles: AxisTitles(
+                          sideTitles: SideTitles(showTitles: false),
+                        ),
+                      ),
+                      borderData: FlBorderData(show: false),
+                      gridData: FlGridData(
+                        show: true,
+                        drawHorizontalLine: true,
+                        drawVerticalLine: false,
+                        horizontalInterval: maxValue > 0 ? maxValue / 5 : 1,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // 计算支出趋势数据
+  List<double> _calculateExpenseTrend(List<Transaction> transactions) {
+    switch (_currentPeriod) {
+      case AnalysisPeriod.weekly:
+        // 一周7天
+        final dailyExpenses = List<double>.filled(7, 0);
+        for (var transaction in transactions) {
+          if (transaction.type == TransactionType.expense) {
+            final dayOfWeek = transaction.date.weekday - 1; // 0-6 (周一到周日)
+            if (dayOfWeek >= 0 && dayOfWeek < 7) {
+              dailyExpenses[dayOfWeek] += transaction.money;
+            }
+          }
+        }
+        return dailyExpenses;
+
+      case AnalysisPeriod.monthly:
+        // 4周
+        final weeklyExpenses = List<double>.filled(4, 0);
+        for (var transaction in transactions) {
+          if (transaction.type == TransactionType.expense) {
+            final weekOfMonth = ((transaction.date.day - 1) ~/ 7);
+            final weekIndex = weekOfMonth < 4 ? weekOfMonth : 3;
+            weeklyExpenses[weekIndex] += transaction.money;
+          }
+        }
+        return weeklyExpenses;
+
+      case AnalysisPeriod.yearly:
+        // 12个月
+        final monthlyExpenses = List<double>.filled(12, 0);
+        for (var transaction in transactions) {
+          if (transaction.type == TransactionType.expense) {
+            final monthIndex = transaction.date.month - 1; // 0-11
+            if (monthIndex >= 0 && monthIndex < 12) {
+              monthlyExpenses[monthIndex] += transaction.money;
+            }
+          }
+        }
+        return monthlyExpenses;
+    }
+  }
+
+  // 计算收入趋势数据
+  List<double> _calculateIncomeTrend(List<Transaction> transactions) {
+    switch (_currentPeriod) {
+      case AnalysisPeriod.weekly:
+        // 一周7天
+        final dailyIncomes = List<double>.filled(7, 0);
+        for (var transaction in transactions) {
+          if (transaction.type == TransactionType.income) {
+            final dayOfWeek = transaction.date.weekday - 1; // 0-6 (周一到周日)
+            if (dayOfWeek >= 0 && dayOfWeek < 7) {
+              dailyIncomes[dayOfWeek] += transaction.money;
+            }
+          }
+        }
+        return dailyIncomes;
+
+      case AnalysisPeriod.monthly:
+        // 4周
+        final weeklyIncomes = List<double>.filled(4, 0);
+        for (var transaction in transactions) {
+          if (transaction.type == TransactionType.income) {
+            final weekOfMonth = ((transaction.date.day - 1) ~/ 7);
+            final weekIndex = weekOfMonth < 4 ? weekOfMonth : 3;
+            weeklyIncomes[weekIndex] += transaction.money;
+          }
+        }
+        return weeklyIncomes;
+
+      case AnalysisPeriod.yearly:
+        // 12个月
+        final monthlyIncomes = List<double>.filled(12, 0);
+        for (var transaction in transactions) {
+          if (transaction.type == TransactionType.income) {
+            final monthIndex = transaction.date.month - 1; // 0-11
+            if (monthIndex >= 0 && monthIndex < 12) {
+              monthlyIncomes[monthIndex] += transaction.money;
+            }
+          }
+        }
+        return monthlyIncomes;
+    }
+  }
+
+  // 获取趋势图表宽度
+  double _getTrendChartWidth(int dataCount) {
+    // 确保最小宽度，避免月度图表过窄
+    final minWidth = 300.0;
+    final calculatedWidth = (dataCount * 60).toDouble();
+    return calculatedWidth > minWidth ? calculatedWidth : minWidth;
+  }
+
+  // 获取趋势标签
+  String _getTrendLabel(int index) {
+    switch (_currentPeriod) {
+      case AnalysisPeriod.weekly:
+        final weekdays = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+        return index < weekdays.length ? weekdays[index] : '';
+
+      case AnalysisPeriod.monthly:
+        return '第${index + 1}周';
+
+      case AnalysisPeriod.yearly:
+        final months = [
+          '1月',
+          '2月',
+          '3月',
+          '4月',
+          '5月',
+          '6月',
+          '7月',
+          '8月',
+          '9月',
+          '10月',
+          '11月',
+          '12月',
+        ];
+        return index < months.length ? months[index] : '';
+    }
   }
 
   // 根据时间段过滤交易数据
@@ -251,22 +729,27 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
   }
 
   // 构建收支对比图表
+  // 构建收支对比图表
+  // 构建收支对比图表
   Widget _buildIncomeExpenseChart(AnalysisStats stats) {
+    final maxValue = [
+      stats.totalIncome,
+      stats.totalExpense,
+    ].reduce((a, b) => a > b ? a : b);
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              '收支对比',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
+            const Text('收支对比', style: TextStyle(fontSize: 16)),
             const SizedBox(height: 16),
             SizedBox(
               height: 200,
               child: BarChart(
                 BarChartData(
+                  maxY: maxValue * 1.2,
                   barGroups: [
                     BarChartGroupData(
                       x: 0,
@@ -274,7 +757,8 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                         BarChartRodData(
                           toY: stats.totalIncome,
                           color: Theme.of(context).colorScheme.tertiary,
-                          width: 20,
+                          width: 15,
+                          borderRadius: BorderRadius.circular(20),
                         ),
                       ],
                     ),
@@ -284,7 +768,8 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                         BarChartRodData(
                           toY: stats.totalExpense,
                           color: Theme.of(context).colorScheme.primary,
-                          width: 20,
+                          width: 15,
+                          borderRadius: BorderRadius.circular(20),
                         ),
                       ],
                     ),
@@ -316,11 +801,36 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                       ),
                     ),
                     leftTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        reservedSize: 40,
+                        interval: maxValue > 0 ? maxValue / 5 : 1,
+                        getTitlesWidget: (value, meta) {
+                          if (value == 0) return const Text('');
+                          return Text(
+                            '${value.toInt()}',
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.outline,
+                              fontSize: 10,
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    topTitles: AxisTitles(
+                      sideTitles: SideTitles(showTitles: false), // 隐藏顶部横轴
+                    ),
+                    rightTitles: AxisTitles(
                       sideTitles: SideTitles(showTitles: false),
                     ),
                   ),
                   borderData: FlBorderData(show: false),
-                  gridData: FlGridData(show: false),
+                  gridData: FlGridData(
+                    show: true,
+                    drawHorizontalLine: true,
+                    drawVerticalLine: false,
+                    horizontalInterval: maxValue > 0 ? maxValue / 5 : 1,
+                  ),
                 ),
               ),
             ),
@@ -344,10 +854,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              '支出分类',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
+            const Text('支出分类', style: TextStyle(fontSize: 16)),
             const SizedBox(height: 16),
             SizedBox(
               height: 200,
@@ -360,7 +867,6 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                           title: '${data.percentage.toStringAsFixed(1)}%',
                           titleStyle: TextStyle(
                             color: Theme.of(context).colorScheme.onPrimary,
-
                             fontSize: 12,
                           ),
                           color: data.color,
@@ -405,7 +911,6 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
     );
   }
 
-  // 计算分类支出
   // 计算分类支出
   List<CategoryExpenseData> _calculateCategoryExpense(
     List<Transaction> transactions,
@@ -458,6 +963,115 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
     return result;
   }
 
+  // 构建最高收入支出卡片
+  Widget _buildHighestTransactionsCard(List<Transaction> transactions) {
+    final highestIncome = _getHighestIncomeTransaction(transactions);
+    final highestExpense = _getHighestExpenseTransaction(transactions);
+
+    if (highestIncome == null && highestExpense == null) {
+      return const SizedBox.shrink();
+    }
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('最高记录', style: TextStyle(fontSize: 16)),
+            const SizedBox(height: 16),
+            if (highestIncome != null) ...[
+              Row(
+                children: [
+                  Icon(
+                    Icons.trending_up,
+                    color: Theme.of(context).colorScheme.tertiary,
+                    size: 16,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      '最高收入: ¥ ${highestIncome.money.toStringAsFixed(2)}',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.tertiary,
+                      ),
+                    ),
+                  ),
+                  Text(
+                    _formatTransactionDate(highestIncome.date),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.outline,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+            ],
+            if (highestExpense != null) ...[
+              Row(
+                children: [
+                  Icon(
+                    Icons.trending_down,
+                    color: Theme.of(context).colorScheme.primary,
+                    size: 16,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      '最高支出: ¥ ${highestExpense.money.toStringAsFixed(2)}',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                  ),
+                  Text(
+                    _formatTransactionDate(highestExpense.date),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.outline,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  // 获取最高收入交易
+  Transaction? _getHighestIncomeTransaction(List<Transaction> transactions) {
+    Transaction? highest;
+    for (var transaction in transactions) {
+      if (transaction.type == TransactionType.income) {
+        if (highest == null || transaction.money > highest.money) {
+          highest = transaction;
+        }
+      }
+    }
+    return highest;
+  }
+
+  // 获取最高支出交易
+  Transaction? _getHighestExpenseTransaction(List<Transaction> transactions) {
+    Transaction? highest;
+    for (var transaction in transactions) {
+      if (transaction.type == TransactionType.expense) {
+        if (highest == null || transaction.money > highest.money) {
+          highest = transaction;
+        }
+      }
+    }
+    return highest;
+  }
+
+  // 格式化交易日期
+  String _formatTransactionDate(DateTime date) {
+    return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+  }
+
   // 构建详细统计
   Widget _buildDetailedStats(AnalysisStats stats) {
     return Card(
@@ -466,10 +1080,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              '详细统计',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
+            const Text('详细统计', style: TextStyle(fontSize: 16)),
             const SizedBox(height: 16),
             _buildDetailRow('收入笔数', '${stats.incomeCount} 笔'),
             _buildDetailRow('支出笔数', '${stats.expenseCount} 笔'),
@@ -555,6 +1166,21 @@ class CategoryExpenseData {
   final Color color;
 
   CategoryExpenseData({
+    required this.category,
+    required this.amount,
+    required this.percentage,
+    required this.color,
+  });
+}
+
+// 分类收入数据模型
+class CategoryIncomeData {
+  final String category;
+  final double amount;
+  final double percentage;
+  final Color color;
+
+  CategoryIncomeData({
     required this.category,
     required this.amount,
     required this.percentage,
