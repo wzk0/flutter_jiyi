@@ -9,10 +9,7 @@ class DrawerTitleWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8),
-      child: Text(
-        actions,
-        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-      ),
+      child: Text(actions, style: TextStyle(fontSize: 16)),
     );
   }
 }

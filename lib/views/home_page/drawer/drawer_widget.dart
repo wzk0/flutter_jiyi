@@ -124,7 +124,7 @@ class _DrawerWidgetState extends State<DrawerWidget> {
                       child: Text(
                         '今日',
                         style: TextStyle(
-                          color: Theme.of(context).colorScheme.outline,
+                          color: Theme.of(context).colorScheme.secondary,
                         ),
                       ),
                     ),

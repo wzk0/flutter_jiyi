@@ -19,7 +19,7 @@ class _SettingsPageState extends State<SettingsPage> {
     {'color': Colors.teal, 'value': 0xFF009688, 'name': '蓝绿色'},
   ];
 
-  MaterialColor? _currentThemeColor; // 改为可空类型
+  MaterialColor? _currentThemeColor;
 
   @override
   void initState() {
@@ -51,92 +51,70 @@ class _SettingsPageState extends State<SettingsPage> {
         return colorEntry['color'];
       }
     }
-    return Colors.orange; // 默认返回橙色
+    return Colors.orange;
   }
+
+  // 获取颜色值
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('设置'),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
+      appBar: AppBar(title: Text('设置')),
+      body: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: ListView(
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(30),
+                color: Theme.of(context).colorScheme.secondaryContainer,
+              ),
+              child: Theme(
+                data: Theme.of(context).copyWith(
+                  dividerColor: Colors.transparent,
+                  splashFactory: NoSplash.splashFactory,
+                ),
+                child: ExpansionTile(
+                  title: Text('主题色'),
+                  leading: Icon(Icons.color_lens),
+                  children: _buildColorOptions(),
+                ),
+              ),
+            ),
+            Divider(height: 40),
+          ],
         ),
-      ),
-      body: ListView(
-        children: [
-          // 主题颜色设置
-          _buildThemeColorSection(),
-
-          const Divider(),
-
-          // 关于应用
-          _buildAboutSection(),
-        ],
       ),
     );
   }
 
-  // 构建主题颜色设置部分
-  Widget _buildThemeColorSection() {
-    // 如果还没加载完成，显示加载指示器
+  // 构建颜色选项列表
+  List<Widget> _buildColorOptions() {
     if (_currentThemeColor == null) {
-      return const Padding(
-        padding: EdgeInsets.all(16),
-        child: Center(child: CircularProgressIndicator()),
-      );
+      return [
+        const ListTile(
+          title: Text('加载中...'),
+          leading: CircularProgressIndicator(),
+          dense: true,
+        ),
+      ];
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Padding(
-          padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
-          child: Text(
-            '主题颜色',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Wrap(
-            spacing: 12,
-            runSpacing: 12,
-            children: _themeColors.map((colorEntry) {
-              return _buildColorOption(
-                colorEntry['color'],
-                colorEntry['value'],
-              );
-            }).toList(),
-          ),
-        ),
-      ],
-    );
-  }
+    return _themeColors.map((colorEntry) {
+      final color = colorEntry['color'];
+      final name = colorEntry['name'];
+      final value = colorEntry['value'];
+      final isSelected =
+          _currentThemeColor != null && color == _currentThemeColor;
 
-  // 构建颜色选项
-  Widget _buildColorOption(MaterialColor color, int colorValue) {
-    // 确保_currentThemeColor不为null
-    final bool isSelected =
-        _currentThemeColor != null && color == _currentThemeColor;
-
-    return GestureDetector(
-      onTap: () => _changeThemeColor(color, colorValue),
-      child: Container(
-        width: 50,
-        height: 50,
-        decoration: BoxDecoration(
-          color: color,
-          shape: BoxShape.circle,
-          border: isSelected ? Border.all(color: Colors.white, width: 3) : null,
-          boxShadow: isSelected
-              ? [BoxShadow(color: color, blurRadius: 8)]
-              : null,
-        ),
-        child: isSelected ? const Icon(Icons.check, color: Colors.white) : null,
-      ),
-    );
+      return ListTile(
+        title: Text(name),
+        trailing: isSelected ? Icon(Icons.check) : null,
+        leading: Icon(Icons.circle, color: color),
+        onTap: () => _changeThemeColor(color, value),
+        dense: true,
+      );
+    }).toList();
   }
 
   // 更改主题颜色
@@ -151,7 +129,7 @@ class _SettingsPageState extends State<SettingsPage> {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('主题颜色已更改为${_getColorName(newColor)}, 请重启动以应用新主题.'),
+          content: Text('主题颜色已更改为${_getColorName(newColor)}, 重启以应用'),
           duration: const Duration(seconds: 1),
         ),
       );
@@ -166,43 +144,5 @@ class _SettingsPageState extends State<SettingsPage> {
       }
     }
     return '主题色';
-  }
-
-  // 构建关于应用部分
-  Widget _buildAboutSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Padding(
-          padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
-          child: Text(
-            '关于应用',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          ),
-        ),
-        ListTile(
-          leading: const Icon(Icons.info),
-          title: const Text('关于记易'),
-          onTap: _showAboutDialog,
-        ),
-      ],
-    );
-  }
-
-  // 显示关于对话框
-  void _showAboutDialog() {
-    showAboutDialog(
-      context: context,
-      applicationName: '记易',
-      applicationVersion: '1.0.0',
-      applicationIcon: const Icon(Icons.money, size: 48),
-      applicationLegalese: '© 2025 记易团队',
-      children: [
-        const SizedBox(height: 16),
-        const Text('一个简洁实用的记账应用'),
-        const SizedBox(height: 8),
-        const Text('帮助您更好地管理个人财务'),
-      ],
-    );
   }
 }

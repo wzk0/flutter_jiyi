@@ -90,14 +90,19 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
     final filteredTransactions = _filterTransactionsByPeriod(_currentPeriod);
 
     if (filteredTransactions.isEmpty) {
-      return const Center(child: Text('该时间段暂无数据'));
+      return Center(
+        child: Text(
+          '该时间段暂无数据',
+          style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+        ),
+      );
     }
 
     // 计算统计数据
     final stats = _calculateStatistics(filteredTransactions);
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       child: Column(
         spacing: 5,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -192,7 +197,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
   Widget _buildOverviewCard(AnalysisStats stats) {
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         child: Column(
           children: [
             Text(
@@ -240,14 +245,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
           ),
         ),
         const SizedBox(height: 4),
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: color,
-          ),
-        ),
+        Text(value, style: TextStyle(fontSize: 16, color: color)),
       ],
     );
   }
@@ -256,13 +254,13 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
   Widget _buildIncomeExpenseChart(AnalysisStats stats) {
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
               '收支对比',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             SizedBox(
@@ -342,13 +340,13 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
 
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
               '支出分类',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             SizedBox(
@@ -362,7 +360,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                           title: '${data.percentage.toStringAsFixed(1)}%',
                           titleStyle: TextStyle(
                             color: Theme.of(context).colorScheme.onPrimary,
-                            fontWeight: FontWeight.bold,
+
                             fontSize: 12,
                           ),
                           color: data.color,
@@ -464,13 +462,13 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
   Widget _buildDetailedStats(AnalysisStats stats) {
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
               '详细统计',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             _buildDetailRow('收入笔数', '${stats.incomeCount} 笔'),

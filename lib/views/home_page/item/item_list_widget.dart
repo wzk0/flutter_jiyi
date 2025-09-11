@@ -20,7 +20,7 @@ class ItemListWidget extends StatelessWidget {
       return Center(
         child: Text(
           '暂无交易记录',
-          style: TextStyle(color: Theme.of(context).colorScheme.primary),
+          style: TextStyle(color: Theme.of(context).colorScheme.secondary),
         ),
       );
     }
