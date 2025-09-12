@@ -22,20 +22,32 @@ class _SettingsPageState extends State<SettingsPage> {
 
   MaterialColor? _currentThemeColor;
 
+  // 分割线设置
+  bool _showYearDivider = false;
+  bool _showMonthDivider = false;
+  bool _showDayDivider = false;
+
   @override
   void initState() {
     super.initState();
-    _loadThemeColor();
+    _loadSettings();
   }
 
-  // 加载保存的主题颜色
-  Future<void> _loadThemeColor() async {
+  // 加载所有设置
+  Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
-    final colorValue = prefs.getInt('theme_color') ?? 0xFFFFA500;
 
+    // 加载主题颜色
+    final colorValue = prefs.getInt('theme_color') ?? 0xFFFFA500;
     setState(() {
-      // 根据保存的颜色值找到对应的MaterialColor
       _currentThemeColor = _getColorFromValue(colorValue);
+    });
+
+    // 加载分割线设置
+    setState(() {
+      _showYearDivider = prefs.getBool('show_year_divider') ?? false;
+      _showMonthDivider = prefs.getBool('show_month_divider') ?? false;
+      _showDayDivider = prefs.getBool('show_day_divider') ?? false;
     });
   }
 
@@ -43,6 +55,12 @@ class _SettingsPageState extends State<SettingsPage> {
   Future<void> _saveThemeColor(int colorValue) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('theme_color', colorValue);
+  }
+
+  // 保存分割线设置
+  Future<void> _saveDividerSetting(String key, bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(key, value);
   }
 
   // 根据颜色值获取MaterialColor
@@ -64,14 +82,8 @@ class _SettingsPageState extends State<SettingsPage> {
       }
     } catch (e) {
       debugPrint('Error launching URL: $e');
-      // 可以显示错误提示
-      // ScaffoldMessenger.of(context).showSnackBar(
-      //   SnackBar(content: Text('无法打开浏览器')),
-      // );
     }
   }
-
-  // 获取颜色值
 
   @override
   Widget build(BuildContext context) {
@@ -104,6 +116,50 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
               ),
               Divider(height: 40),
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(30),
+                  color: Theme.of(context).colorScheme.secondaryContainer,
+                ),
+                child: Column(
+                  children: [
+                    SwitchListTile(
+                      title: Text('年分割线'),
+                      activeThumbColor: Theme.of(context).colorScheme.primary,
+                      value: _showYearDivider,
+                      onChanged: (value) {
+                        setState(() {
+                          _showYearDivider = value;
+                        });
+                        _saveDividerSetting('show_year_divider', value);
+                      },
+                    ),
+                    SwitchListTile(
+                      title: Text('月分割线'),
+                      activeThumbColor: Theme.of(context).colorScheme.primary,
+                      value: _showMonthDivider,
+                      onChanged: (value) {
+                        setState(() {
+                          _showMonthDivider = value;
+                        });
+                        _saveDividerSetting('show_month_divider', value);
+                      },
+                    ),
+                    SwitchListTile(
+                      title: Text('日分割线'),
+                      activeThumbColor: Theme.of(context).colorScheme.primary,
+                      value: _showDayDivider,
+                      onChanged: (value) {
+                        setState(() {
+                          _showDayDivider = value;
+                        });
+                        _saveDividerSetting('show_day_divider', value);
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              Divider(height: 40),
               ListTile(
                 leading: Icon(Icons.tips_and_updates_outlined),
                 title: Text('提示'),
@@ -129,7 +185,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 leading: Icon(Icons.code),
                 title: Text('源代码'),
                 onTap: () {
-                  _launchInBrowser('https://github.com/wzk0/flutter_jiyi');
+                  _launchInBrowser('https://github.com/wzk0/flutter_jiyi  ');
                 },
               ),
             ],

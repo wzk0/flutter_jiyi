@@ -110,16 +110,19 @@ class _AltDialogWidgetState extends State<AltDialogWidget> {
             ),
             keyboardType: TextInputType.number,
           ),
+          // 修改日期输入框，添加点击选择功能
           TextField(
             controller: _dateController,
             readOnly: true,
             decoration: InputDecoration(
-              label: Icon(
+              labelText: '日期时间',
+              prefixIcon: Icon(
                 Icons.calendar_month,
                 color: Theme.of(context).colorScheme.outline,
               ),
               border: OutlineInputBorder(),
             ),
+            onTap: _selectDateTime, // 添加点击事件
           ),
         ],
       ),
@@ -128,6 +131,42 @@ class _AltDialogWidgetState extends State<AltDialogWidget> {
         FilledButton(onPressed: _saveTransaction, child: Text('保存')),
       ],
     );
+  }
+
+  // 选择日期时间
+  // 选择日期时间
+  // 选择日期时间
+  // 选择日期时间
+  void _selectDateTime() async {
+    // 先选择日期
+    final DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate,
+      firstDate: DateTime(2020),
+      lastDate: DateTime(2050),
+    );
+
+    if (pickedDate != null && mounted) {
+      // 再选择时间
+      final TimeOfDay? pickedTime = await showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.fromDateTime(_selectedDate),
+      );
+
+      if (pickedTime != null && mounted) {
+        // 更新选中的日期时间
+        setState(() {
+          _selectedDate = DateTime(
+            pickedDate.year,
+            pickedDate.month,
+            pickedDate.day,
+            pickedTime.hour,
+            pickedTime.minute,
+          );
+          _dateController.text = _formatDate(_selectedDate);
+        });
+      }
+    }
   }
 
   void _saveTransaction() {

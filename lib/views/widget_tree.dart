@@ -5,7 +5,8 @@ import 'package:jiyi/views/home_page/btm_appbar_widget.dart';
 import 'package:jiyi/views/home_page/fab_widget.dart';
 import 'package:jiyi/models/transaction.dart';
 import 'package:jiyi/services/database_service.dart';
-import 'package:jiyi/views/home_page/alt_dialog_widget.dart'; // 添加这个导入
+import 'package:jiyi/views/home_page/alt_dialog_widget.dart';
+import 'package:shared_preferences/shared_preferences.dart'; // 添加这个导入
 
 class WidgetTree extends StatefulWidget {
   const WidgetTree({super.key});
@@ -18,10 +19,26 @@ class _WidgetTreeState extends State<WidgetTree> {
   List<Transaction> _transactions = [];
   bool _isLoading = true;
 
+  // 分割线设置
+  bool _showYearDivider = false;
+  bool _showMonthDivider = false;
+  bool _showDayDivider = false;
+
   @override
   void initState() {
     super.initState();
     _initDatabaseAndLoadData();
+    _loadDividerSettings(); // 加载分割线设置
+  }
+
+  // 加载分割线设置
+  Future<void> _loadDividerSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _showYearDivider = prefs.getBool('show_year_divider') ?? false;
+      _showMonthDivider = prefs.getBool('show_month_divider') ?? false;
+      _showDayDivider = prefs.getBool('show_day_divider') ?? false;
+    });
   }
 
   // 初始化数据库并加载数据
@@ -78,6 +95,7 @@ class _WidgetTreeState extends State<WidgetTree> {
     try {
       await DatabaseService.instance.updateTransaction(transaction);
       await _loadTransactions(); // 重新加载数据
+      await _loadDividerSettings(); // 重新加载设置（如果有更新）
       if (mounted) {
         ScaffoldMessenger.of(
           context,
@@ -121,6 +139,7 @@ class _WidgetTreeState extends State<WidgetTree> {
     try {
       await DatabaseService.instance.deleteTransaction(id);
       await _loadTransactions(); // 重新加载数据
+      await _loadDividerSettings(); // 重新加载设置（如果有更新）
       if (mounted) {
         ScaffoldMessenger.of(
           context,
@@ -147,6 +166,9 @@ class _WidgetTreeState extends State<WidgetTree> {
                 transactions: _transactions,
                 onEdit: _editTransaction, // 传递编辑回调
                 onDelete: _deleteTransaction, // 传递删除回调
+                showYearDivider: _showYearDivider, // 传递分割线设置
+                showMonthDivider: _showMonthDivider,
+                showDayDivider: _showDayDivider,
               ),
       ),
       bottomNavigationBar: BtmAppbarWidget(),
