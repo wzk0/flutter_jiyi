@@ -25,7 +25,7 @@ class ItemListWidget extends StatelessWidget {
     if (transactions.isEmpty) {
       return Center(
         child: Text(
-          '暂无交易记录',
+          '暂无账目数据',
           style: TextStyle(color: Theme.of(context).colorScheme.secondary),
         ),
       );

@@ -6,6 +6,7 @@ import 'package:jiyi/views/home_page/fab_widget.dart';
 import 'package:jiyi/models/transaction.dart';
 import 'package:jiyi/services/database_service.dart';
 import 'package:jiyi/views/home_page/alt_dialog_widget.dart';
+import 'package:jiyi/views/home_page/search_dialog_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart'; // 添加这个导入
 
 class WidgetTree extends StatefulWidget {
@@ -157,7 +158,23 @@ class _WidgetTreeState extends State<WidgetTree> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('记易'), centerTitle: true),
+      appBar: AppBar(
+        title: Text('记易'),
+        centerTitle: true,
+        actions: [
+          IconButton(
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return SearchDialogWidget();
+                },
+              );
+            },
+            icon: Icon(Icons.search),
+          ),
+        ],
+      ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: _isLoading

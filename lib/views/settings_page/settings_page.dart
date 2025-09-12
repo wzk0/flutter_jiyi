@@ -98,6 +98,15 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           child: ListView(
             children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  '主题色',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
+              ),
               Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(30),
@@ -116,7 +125,17 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
               ),
               Divider(height: 40),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  '分割线',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
+              ),
               Container(
+                padding: EdgeInsets.all(8),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(30),
                   color: Theme.of(context).colorScheme.secondaryContainer,
@@ -125,6 +144,10 @@ class _SettingsPageState extends State<SettingsPage> {
                   children: [
                     SwitchListTile(
                       title: Text('年分割线'),
+                      subtitle: Text(
+                        '在首页显示以年为单位的分割线, 如"2025年"',
+                        style: TextStyle(fontSize: 12),
+                      ),
                       activeThumbColor: Theme.of(context).colorScheme.primary,
                       value: _showYearDivider,
                       onChanged: (value) {
@@ -136,6 +159,10 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                     SwitchListTile(
                       title: Text('月分割线'),
+                      subtitle: Text(
+                        '在首页显示以年月为单位的分割线, 如"2025年9月"',
+                        style: TextStyle(fontSize: 12),
+                      ),
                       activeThumbColor: Theme.of(context).colorScheme.primary,
                       value: _showMonthDivider,
                       onChanged: (value) {
@@ -147,6 +174,10 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                     SwitchListTile(
                       title: Text('日分割线'),
+                      subtitle: Text(
+                        '在首页显示以年月日为单位的分割线, 如"2025年9月1日"',
+                        style: TextStyle(fontSize: 12),
+                      ),
                       activeThumbColor: Theme.of(context).colorScheme.primary,
                       value: _showDayDivider,
                       onChanged: (value) {
@@ -163,6 +194,102 @@ class _SettingsPageState extends State<SettingsPage> {
               ListTile(
                 leading: Icon(Icons.tips_and_updates_outlined),
                 title: Text('提示'),
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        scrollable: true,
+                        title: Text('提示'),
+                        content: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          spacing: 10,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              '感谢🙏使用记易! 这是一款个人开发的记账软件, 使用Flutter进行构建, 过程中如果发现bug, 如果可以的话请帮忙提个issue!',
+                            ),
+                            Divider(),
+                            Text(
+                              '在首页, 您可以通过点击右下角"记一笔"按钮进行记账. 记账要求您必须输入金额, 名称如果留白则会被命名为"未命名账目".',
+                            ),
+                            Text(
+                              '保存完成后, 该笔账目便会出现在首页. 如果您想要日期分割线, 可以在左下角设置按钮中进行设置. 同时, 您还可以在设置页面中进行主题色的设置, 以及发现本篇"提示".',
+                            ),
+                            Text(
+                              '每条账目的后面都有编辑按钮与删除按钮, 点击即可进行对应操作. ⚠️注意: 删除的账目无法进行找回!',
+                            ),
+                            Divider(),
+                            Text(
+                              '点击首页左上角即可打开侧边栏速览账目数据总结. 包括最上方的今日总收入与总支出(后方有一个饼图显示占比), 所有时间段的总收入与总支出, 以及至今为止最高的一笔收入与支出.',
+                            ),
+                            Divider(),
+                            Text(
+                              '您可以发现: 收入组件永远在支出的上方/左侧. 同时, 收入相关组件的配色会使用Material Design的Tertiary色系, 而支出相关组件的配色则会使用Primary色系.',
+                            ),
+                            Row(
+                              spacing: 5,
+                              children: [
+                                Icon(
+                                  Icons.circle,
+                                  color: Theme.of(context).colorScheme.tertiary,
+                                  size: 15,
+                                ),
+                                Text('这是收入相关组件的主题色.'),
+                              ],
+                            ),
+                            Row(
+                              spacing: 5,
+                              children: [
+                                Icon(
+                                  Icons.circle,
+                                  color: Theme.of(context).colorScheme.primary,
+                                  size: 15,
+                                ),
+                                Text('而这是支出相关组件的主题色.'),
+                              ],
+                            ),
+                            Divider(),
+                            Text('收入与支出的图标也不同.'),
+                            Row(
+                              spacing: 5,
+                              children: [
+                                Icon(
+                                  Icons.wallet,
+                                  color: Theme.of(context).colorScheme.tertiary,
+                                  size: 15,
+                                ),
+                                Text('这是收入相关组件的图标.'),
+                              ],
+                            ),
+                            Row(
+                              spacing: 5,
+                              children: [
+                                Icon(
+                                  Icons.money,
+                                  color: Theme.of(context).colorScheme.primary,
+                                  size: 15,
+                                ),
+                                Text('而这是支出相关组件的图标.'),
+                              ],
+                            ),
+                            Divider(),
+                            Text('记易具有账目分析功能. 只需要点击左下角分析按钮(设置按钮右方)即可进行查看.'),
+                            Text(
+                              '包括周度, 月度以及年度分析. 涵盖"该时间段内最高收入与支出", "收支对比", "收入与支出趋势", "收入与支出分类", "结余率计算"等.',
+                            ),
+                            Divider(),
+                            Text(
+                              '因此, 在使用记易进行记账时, 如果您使用相同的账目名称, 例如: "早餐", "购物", "旅行"(后续会支持模糊分类统计), 可以更好地查看数据分析.',
+                            ),
+                            Divider(),
+                            Text('目前就是这样. 再次感谢🙏使用记易!'),
+                          ],
+                        ),
+                      );
+                    },
+                  );
+                },
               ),
               ListTile(
                 leading: Icon(Icons.info_outline),
@@ -171,12 +298,12 @@ class _SettingsPageState extends State<SettingsPage> {
                   showAboutDialog(
                     context: context,
                     applicationName: '记易',
-                    applicationVersion: '1.0.0',
-                    applicationLegalese: '© 2025 thdbd',
-                    applicationIcon: Icon(
-                      Icons.money,
-                      color: Theme.of(context).colorScheme.primary,
-                      size: 40,
+                    applicationVersion: '0.0.1',
+                    applicationLegalese: '© 2025 wzk0 & thdbd',
+                    applicationIcon: Image.asset(
+                      'assets/icon/1024.png',
+                      width: 55,
+                      height: 55,
                     ),
                   );
                 },
