@@ -22,7 +22,7 @@ jobs:
     - name: Set up Flutter
       uses: subosito/flutter-action@v2
       with:
-        flutter-version: '3.35.3'  # 使用较新稳定版
+        flutter-version: '3.35.3'
 
     - name: Get version from pubspec.yaml
       id: get_version
@@ -34,24 +34,21 @@ jobs:
       run: |
         flutter build apk --release --split-per-abi
 
-    - name: List generated APKs
+    - name: List generated APKs (for debugging)
       run: |
         ls -la build/app/outputs/flutter-apk/
 
-    - name: Create ZIP with all APKs
-      run: |
-        mkdir -p release
-        cp build/app/outputs/flutter-apk/*-release.apk release/
-        cd release
-        zip ../app-release-${{ steps.get_version.outputs.version }}.zip *.apk
+    # ✅ 删除了 "Create ZIP with all APKs" 步骤
 
     - name: Create Release
       uses: softprops/action-gh-release@v2
       with:
+        # ✅ 直接上传所有 APK 文件
         files: |
           build/app/outputs/flutter-apk/*-release.apk
-          app-release-${{ steps.get_version.outputs.version }}.zip
         tag_name: ${{ github.ref_name }}
         body: "Debug-signed Release ${{ steps.get_version.outputs.version }}"
+        # 可选：自定义 Release 标题
+        name: Release ${{ steps.get_version.outputs.version }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
