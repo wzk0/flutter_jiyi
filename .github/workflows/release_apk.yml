@@ -49,4 +49,4 @@ jobs:
         body: "Release ${{ steps.get_version.outputs.version }}"
         name: Release ${{ steps.get_version.outputs.version }}
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
