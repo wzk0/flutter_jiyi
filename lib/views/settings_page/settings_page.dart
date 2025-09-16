@@ -22,10 +22,13 @@ class _SettingsPageState extends State<SettingsPage> {
 
   MaterialColor? _currentThemeColor;
 
-  // 分割线设置
+  // 设置选项
   bool _showYearDivider = false;
   bool _showMonthDivider = false;
   bool _showDayDivider = false;
+  bool _isIconEnabled = false; // 图标开关
+
+  bool _settingsLoaded = false; // 标记设置是否已加载
 
   @override
   void initState() {
@@ -39,15 +42,20 @@ class _SettingsPageState extends State<SettingsPage> {
 
     // 加载主题颜色
     final colorValue = prefs.getInt('theme_color') ?? 0xFFFFA500;
-    setState(() {
-      _currentThemeColor = _getColorFromValue(colorValue);
-    });
 
     // 加载分割线设置
+    final showYearDivider = prefs.getBool('show_year_divider') ?? false;
+    final showMonthDivider = prefs.getBool('show_month_divider') ?? false;
+    final showDayDivider = prefs.getBool('show_day_divider') ?? false;
+    final isIconEnabled = prefs.getBool('is_icon') ?? false; // 加载图标设置
+
     setState(() {
-      _showYearDivider = prefs.getBool('show_year_divider') ?? false;
-      _showMonthDivider = prefs.getBool('show_month_divider') ?? false;
-      _showDayDivider = prefs.getBool('show_day_divider') ?? false;
+      _currentThemeColor = _getColorFromValue(colorValue);
+      _showYearDivider = showYearDivider;
+      _showMonthDivider = showMonthDivider;
+      _showDayDivider = showDayDivider;
+      _isIconEnabled = isIconEnabled;
+      _settingsLoaded = true; // 标记设置已加载完成
     });
   }
 
@@ -61,6 +69,12 @@ class _SettingsPageState extends State<SettingsPage> {
   Future<void> _saveDividerSetting(String key, bool value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(key, value);
+  }
+
+  // 保存图标设置
+  Future<void> _saveIconSetting(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('is_icon', value);
   }
 
   // 根据颜色值获取MaterialColor
@@ -149,7 +163,9 @@ class _SettingsPageState extends State<SettingsPage> {
                         style: TextStyle(fontSize: 12),
                       ),
                       activeThumbColor: Theme.of(context).colorScheme.primary,
-                      value: _showYearDivider,
+                      value: _settingsLoaded
+                          ? _showYearDivider
+                          : false, // 使用加载状态
                       onChanged: (value) {
                         setState(() {
                           _showYearDivider = value;
@@ -164,7 +180,9 @@ class _SettingsPageState extends State<SettingsPage> {
                         style: TextStyle(fontSize: 12),
                       ),
                       activeThumbColor: Theme.of(context).colorScheme.primary,
-                      value: _showMonthDivider,
+                      value: _settingsLoaded
+                          ? _showMonthDivider
+                          : false, // 使用加载状态
                       onChanged: (value) {
                         setState(() {
                           _showMonthDivider = value;
@@ -175,11 +193,13 @@ class _SettingsPageState extends State<SettingsPage> {
                     SwitchListTile(
                       title: Text('日分割线'),
                       subtitle: Text(
-                        '在首页显示以年月日为单位的分割线, 如"2025年9月1日"',
+                        '在首页显示以年月日为单位的分割线, 如"2025年9月1日 星期一"',
                         style: TextStyle(fontSize: 12),
                       ),
                       activeThumbColor: Theme.of(context).colorScheme.primary,
-                      value: _showDayDivider,
+                      value: _settingsLoaded
+                          ? _showDayDivider
+                          : false, // 使用加载状态
                       onChanged: (value) {
                         setState(() {
                           _showDayDivider = value;
@@ -188,6 +208,38 @@ class _SettingsPageState extends State<SettingsPage> {
                       },
                     ),
                   ],
+                ),
+              ),
+              Divider(height: 40),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  'LOGO',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
+              ),
+              Container(
+                padding: EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(30),
+                  color: Theme.of(context).colorScheme.secondaryContainer,
+                ),
+                child: SwitchListTile(
+                  value: _settingsLoaded ? _isIconEnabled : false, // 使用加载状态
+                  onChanged: (value) {
+                    setState(() {
+                      _isIconEnabled = value;
+                    });
+                    _saveIconSetting(value); // 保存图标设置
+                  },
+                  title: Text('卡片图标LOGO'),
+                  subtitle: Text(
+                    '在首页账目卡片启用固定图标LOGO, 否则显示分类的第一个字. 如"饮料-冰红茶"则会显示"饮"',
+                    style: TextStyle(fontSize: 12),
+                  ),
+                  activeThumbColor: Theme.of(context).colorScheme.primary,
                 ),
               ),
               Divider(height: 40),
@@ -312,7 +364,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 leading: Icon(Icons.code),
                 title: Text('源代码'),
                 onTap: () {
-                  _launchInBrowser('https://github.com/wzk0/flutter_jiyi  ');
+                  _launchInBrowser('https://github.com/wzk0/flutter_jiyi    ');
                 },
               ),
             ],

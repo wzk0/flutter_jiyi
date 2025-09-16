@@ -19,6 +19,8 @@ class WidgetTree extends StatefulWidget {
 class _WidgetTreeState extends State<WidgetTree> {
   List<Transaction> _transactions = [];
   bool _isLoading = true;
+  bool _isSearching = false; // 添加搜索状态
+  List<Transaction> _searchResults = []; // 添加搜索结果
 
   // 分割线设置
   bool _showYearDivider = false;
@@ -40,6 +42,32 @@ class _WidgetTreeState extends State<WidgetTree> {
       _showMonthDivider = prefs.getBool('show_month_divider') ?? false;
       _showDayDivider = prefs.getBool('show_day_divider') ?? false;
     });
+  }
+
+  // 计算交易数据中的最小和最大金额
+  (double, double) _calculateMinMaxAmount(List<Transaction> transactions) {
+    if (transactions.isEmpty) {
+      return (0.0, 100.0); // 默认范围
+    }
+
+    double minAmount = transactions.first.money;
+    double maxAmount = transactions.first.money;
+
+    for (var transaction in transactions) {
+      if (transaction.money < minAmount) {
+        minAmount = transaction.money;
+      }
+      if (transaction.money > maxAmount) {
+        maxAmount = transaction.money;
+      }
+    }
+
+    // 确保有一个合理的范围
+    if (minAmount == maxAmount) {
+      maxAmount = minAmount + 100; // 如果只有一个值，扩展范围
+    }
+
+    return (minAmount, maxAmount);
   }
 
   // 初始化数据库并加载数据
@@ -155,6 +183,81 @@ class _WidgetTreeState extends State<WidgetTree> {
     }
   }
 
+  // 显示搜索对话框
+  void _showSearchDialog() async {
+    final (minAmount, maxAmount) = _calculateMinMaxAmount(_transactions);
+
+    final result = await showDialog<Map<String, dynamic>>(
+      context: context,
+      builder: (context) =>
+          SearchDialogWidget(minAmount: minAmount, maxAmount: maxAmount),
+    );
+
+    if (result != null) {
+      _performSearch(result);
+    }
+  }
+
+  // 执行搜索
+  void _performSearch(Map<String, dynamic> searchCriteria) {
+    setState(() {
+      _isSearching = true;
+      _searchResults = _filterTransactions(_transactions, searchCriteria);
+    });
+  }
+
+  // 过滤交易数据
+  List<Transaction> _filterTransactions(
+    List<Transaction> transactions,
+    Map<String, dynamic> criteria,
+  ) {
+    String keyword = criteria['keyword'] as String? ?? '';
+    double minAmount = criteria['minAmount'] as double? ?? 0;
+    double maxAmount = criteria['maxAmount'] as double? ?? double.infinity;
+    String type = criteria['type'] as String? ?? 'all';
+    DateTime? startDate = criteria['startDate'] as DateTime?;
+    DateTime? endDate = criteria['endDate'] as DateTime?;
+
+    return transactions.where((transaction) {
+      // 关键词过滤
+      if (keyword.isNotEmpty &&
+          !transaction.name.toLowerCase().contains(keyword.toLowerCase())) {
+        return false;
+      }
+
+      // 金额范围过滤
+      if (transaction.money < minAmount || transaction.money > maxAmount) {
+        return false;
+      }
+
+      // 类型过滤
+      if (type == 'income' && transaction.type != TransactionType.income) {
+        return false;
+      }
+      if (type == 'expense' && transaction.type != TransactionType.expense) {
+        return false;
+      }
+
+      // 日期范围过滤
+      if (startDate != null && transaction.date.isBefore(startDate)) {
+        return false;
+      }
+      if (endDate != null && transaction.date.isAfter(endDate)) {
+        return false;
+      }
+
+      return true;
+    }).toList();
+  }
+
+  // 清除搜索
+  void _clearSearch() {
+    setState(() {
+      _isSearching = false;
+      _searchResults.clear();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -163,15 +266,8 @@ class _WidgetTreeState extends State<WidgetTree> {
         centerTitle: true,
         actions: [
           IconButton(
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (context) {
-                  return SearchDialogWidget();
-                },
-              );
-            },
-            icon: Icon(Icons.search),
+            icon: Icon(_isSearching ? Icons.clear : Icons.search),
+            onPressed: _isSearching ? _clearSearch : _showSearchDialog,
           ),
         ],
       ),
@@ -179,11 +275,20 @@ class _WidgetTreeState extends State<WidgetTree> {
         padding: const EdgeInsets.all(8.0),
         child: _isLoading
             ? const Center(child: CircularProgressIndicator())
+            : _isSearching
+            ? ItemListWidget(
+                transactions: _searchResults,
+                onEdit: _editTransaction,
+                onDelete: _deleteTransaction,
+                showYearDivider: _showYearDivider,
+                showMonthDivider: _showMonthDivider,
+                showDayDivider: _showDayDivider,
+              )
             : ItemListWidget(
                 transactions: _transactions,
-                onEdit: _editTransaction, // 传递编辑回调
-                onDelete: _deleteTransaction, // 传递删除回调
-                showYearDivider: _showYearDivider, // 传递分割线设置
+                onEdit: _editTransaction,
+                onDelete: _deleteTransaction,
+                showYearDivider: _showYearDivider,
                 showMonthDivider: _showMonthDivider,
                 showDayDivider: _showDayDivider,
               ),

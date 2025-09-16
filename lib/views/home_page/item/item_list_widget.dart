@@ -20,6 +20,12 @@ class ItemListWidget extends StatelessWidget {
     this.showDayDivider = false,
   });
 
+  String _getChineseWeekday(DateTime date) {
+    final weekdays = ['星期一', '星期二', '星期三', '星期四', '星期五', '星期六', '星期日'];
+    // weekday 是 1~7，对应 List 的索引 0~6
+    return weekdays[date.weekday - 1];
+  }
+
   @override
   Widget build(BuildContext context) {
     if (transactions.isEmpty) {
@@ -254,7 +260,7 @@ class ItemListWidget extends StatelessWidget {
         spacing: 5,
         children: [
           Text(
-            '${date.year}年${date.month}月${date.day}日',
+            '${date.year}年${date.month}月${date.day}日 ${_getChineseWeekday(date)}',
             style: TextStyle(
               color: Theme.of(context).colorScheme.outline,
               fontSize: 12,

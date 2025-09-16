@@ -142,6 +142,14 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
     );
   }
 
+  // 获取分类名称
+  String _getCategoryName(String name) {
+    if (name.contains('-')) {
+      return name.split('-')[0];
+    }
+    return name;
+  }
+
   // 构建分类收入饼图
   Widget _buildCategoryIncomeChart(List<Transaction> transactions) {
     final categoryData = _calculateCategoryIncome(transactions);
@@ -177,6 +185,16 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                       )
                       .toList(),
                   centerSpaceRadius: 50,
+                  // 添加长按显示详情
+                  pieTouchData: PieTouchData(
+                    touchCallback: (FlTouchEvent event, pieTouchResponse) {
+                      if (!event.isInterestedForInteractions ||
+                          pieTouchResponse == null ||
+                          pieTouchResponse.touchedSection == null) {
+                        return;
+                      }
+                    },
+                  ),
                 ),
               ),
             ),
@@ -200,7 +218,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          '${data.category}: ¥ ${data.amount.toStringAsFixed(2)}',
+                          '${data.category}: ¥ ${data.amount.toStringAsFixed(2)} (${data.percentage.toStringAsFixed(1)}%)',
                         ),
                       ],
                     ),
@@ -222,7 +240,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
     // 统计各分类收入
     for (var transaction in transactions) {
       if (transaction.type == TransactionType.income) {
-        final category = transaction.name; // 这里可以根据你的分类字段调整
+        final category = _getCategoryName(transaction.name);
         incomeMap[category] = (incomeMap[category] ?? 0) + transaction.money;
       }
     }
@@ -729,8 +747,6 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
   }
 
   // 构建收支对比图表
-  // 构建收支对比图表
-  // 构建收支对比图表
   Widget _buildIncomeExpenseChart(AnalysisStats stats) {
     final maxValue = [
       stats.totalIncome,
@@ -875,6 +891,16 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                       )
                       .toList(),
                   centerSpaceRadius: 50,
+                  // 添加长按显示详情
+                  pieTouchData: PieTouchData(
+                    touchCallback: (FlTouchEvent event, pieTouchResponse) {
+                      if (!event.isInterestedForInteractions ||
+                          pieTouchResponse == null ||
+                          pieTouchResponse.touchedSection == null) {
+                        return;
+                      }
+                    },
+                  ),
                 ),
               ),
             ),
@@ -898,7 +924,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          '${data.category}: ¥ ${data.amount.toStringAsFixed(2)}',
+                          '${data.category}: ¥ ${data.amount.toStringAsFixed(2)} (${data.percentage.toStringAsFixed(1)}%)',
                         ),
                       ],
                     ),
@@ -920,7 +946,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
     // 统计各分类支出
     for (var transaction in transactions) {
       if (transaction.type == TransactionType.expense) {
-        final category = transaction.name; // 这里可以根据你的分类字段调整
+        final category = _getCategoryName(transaction.name);
         expenseMap[category] = (expenseMap[category] ?? 0) + transaction.money;
       }
     }
