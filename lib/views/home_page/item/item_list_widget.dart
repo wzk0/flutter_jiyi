@@ -21,7 +21,7 @@ class ItemListWidget extends StatelessWidget {
   });
 
   String _getChineseWeekday(DateTime date) {
-    final weekdays = ['星期一', '星期二', '星期三', '星期四', '星期五', '星期六', '星期日'];
+    final weekdays = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
     // weekday 是 1~7，对应 List 的索引 0~6
     return weekdays[date.weekday - 1];
   }

@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:jiyi/views/calculate_page/calculate_page.dart';
 import 'package:jiyi/views/home_page/drawer/drawer_widget.dart';
 import 'package:jiyi/views/home_page/item/item_list_widget.dart';
 import 'package:jiyi/views/home_page/btm_appbar_widget.dart';
 import 'package:jiyi/views/home_page/fab_widget.dart';
 import 'package:jiyi/models/transaction.dart';
 import 'package:jiyi/services/database_service.dart';
-import 'package:jiyi/views/home_page/alt_dialog_widget.dart';
+import 'package:jiyi/views/home_page/alt_dialogs/alt_dialog_widget.dart';
 import 'package:jiyi/views/home_page/search_dialog_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart'; // 添加这个导入
 
@@ -265,6 +266,19 @@ class _WidgetTreeState extends State<WidgetTree> {
         title: Text('记易'),
         centerTitle: true,
         actions: [
+          IconButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) {
+                    return CalculatorWidget();
+                  },
+                ),
+              );
+            },
+            icon: Icon(Icons.calculate),
+          ),
           IconButton(
             icon: Icon(_isSearching ? Icons.clear : Icons.search),
             onPressed: _isSearching ? _clearSearch : _showSearchDialog,

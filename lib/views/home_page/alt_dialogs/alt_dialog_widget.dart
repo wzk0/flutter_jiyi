@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:jiyi/models/transaction.dart';
+import 'package:jiyi/views/home_page/alt_dialogs/category_chip_widget.dart';
+import 'package:jiyi/services/database_service.dart';
 
 class AltDialogWidget extends StatefulWidget {
   final String title;
@@ -21,9 +23,13 @@ class _AltDialogWidgetState extends State<AltDialogWidget> {
   // 修正：添加类型状态变量
   late TransactionType _transactionType;
 
+  // 新增：分类列表
+  List<String> _categories = [];
+
   @override
   void initState() {
     super.initState();
+    _loadCategories(); // 加载分类
     if (widget.transaction != null) {
       _nameController.text = widget.transaction!.name;
       _moneyController.text = widget.transaction!.money.toString();
@@ -36,6 +42,30 @@ class _AltDialogWidgetState extends State<AltDialogWidget> {
       _transactionType = TransactionType.expense; // 默认支出
     }
     _dateController.text = _formatDate(_selectedDate);
+  }
+
+  // 新增：加载所有分类
+  Future<void> _loadCategories() async {
+    try {
+      final transactions = await DatabaseService.instance.getTransactions();
+      final Set<String> categoriesSet = <String>{};
+
+      // 提取所有分类（name.split('-').first）
+      for (var transaction in transactions) {
+        if (transaction.name.contains('-')) {
+          final category = transaction.name.split('-').first;
+          if (category.isNotEmpty) {
+            categoriesSet.add(category);
+          }
+        }
+      }
+
+      setState(() {
+        _categories = categoriesSet.toList()..sort();
+      });
+    } catch (e) {
+      debugPrint('加载分类失败: $e');
+    }
   }
 
   String _formatDate(DateTime date) {
@@ -51,6 +81,31 @@ class _AltDialogWidgetState extends State<AltDialogWidget> {
   }
 
   bool iconColor = true;
+
+  // 新增：处理分类点击事件
+  void _addCategoryToNameField(String category) {
+    setState(() {
+      String currentText = _nameController.text;
+
+      // 如果当前文本包含分类，替换分类部分
+      if (currentText.contains('-')) {
+        final parts = currentText.split('-');
+        if (parts.length > 1) {
+          _nameController.text = '$category-${parts.sublist(1).join('-')}';
+        } else {
+          _nameController.text = '$category-';
+        }
+      } else {
+        // 如果当前文本不包含分类，直接添加分类前缀
+        _nameController.text = '$category-$currentText';
+      }
+
+      // 将光标移动到文本末尾
+      _nameController.selection = TextSelection.fromPosition(
+        TextPosition(offset: _nameController.text.length),
+      );
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -95,11 +150,13 @@ class _AltDialogWidgetState extends State<AltDialogWidget> {
               ),
             ],
           ),
+          Divider(),
           TextField(
             controller: _nameController,
             decoration: InputDecoration(
               labelText: '名称',
               border: OutlineInputBorder(),
+              hintText: '请输入名称, 如冰红茶',
             ),
           ),
           TextField(
@@ -107,15 +164,44 @@ class _AltDialogWidgetState extends State<AltDialogWidget> {
             decoration: InputDecoration(
               labelText: '金额',
               border: OutlineInputBorder(),
+              hintText: '请输入金额, 如2 / 2.5',
             ),
             keyboardType: TextInputType.number,
           ),
-          // 修改日期输入框，添加点击选择功能
+          Divider(),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [Text('分类')],
+          ),
+          // 修改：动态显示所有分类
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              spacing: 5,
+              children: _categories.isEmpty
+                  ? [
+                      Text(
+                        '暂无分类',
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.outline,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ]
+                  : _categories.map((category) {
+                      return CategoryChipWidget(
+                        title: category,
+                        onTap: () => _addCategoryToNameField(category),
+                      );
+                    }).toList(),
+            ),
+          ),
+          Divider(),
           TextField(
             controller: _dateController,
             readOnly: true,
             decoration: InputDecoration(
-              labelText: '日期时间',
+              labelText: '时间',
               prefixIcon: Icon(
                 Icons.calendar_month,
                 color: Theme.of(context).colorScheme.outline,
@@ -133,9 +219,6 @@ class _AltDialogWidgetState extends State<AltDialogWidget> {
     );
   }
 
-  // 选择日期时间
-  // 选择日期时间
-  // 选择日期时间
   // 选择日期时间
   void _selectDateTime() async {
     // 先选择日期
