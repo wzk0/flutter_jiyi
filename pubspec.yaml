@@ -1,7 +1,7 @@
 name: jiyi
 description: "记易, 让记账更容易."
 publish_to: 'none' 
-version: 0.0.2
+version: 0.0.2+0.0.1
 
 environment:
   sdk: ^3.9.0

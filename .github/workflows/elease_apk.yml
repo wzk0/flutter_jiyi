@@ -1,0 +1,70 @@
+name: Build & Release APK
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'  # 匹配如 v1.0.0 的 tag
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up JDK
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'zulu'
+        java-version: '17'
+
+    - name: Set up Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.22.0'  # 替换为你使用的版本
+
+    - name: Decode Keystore
+      run: |
+        echo "${{ secrets.KEYSTORE_FILE }}" | base64 --decode > android/app/upload-keystore.jks
+
+    - name: Get version from pubspec.yaml
+      id: get_version
+      run: |
+        VERSION=$(grep 'version:' pubspec.yaml | awk '{print $2}' | cut -d'+' -f1)
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+    - name: Build APK for arm64-v8a
+      run: |
+        flutter build apk --release --split-per-abi --target-platform android-arm64
+
+    - name: Build APK for armeabi-v7a
+      run: |
+        flutter build apk --release --split-per-abi --target-platform android-arm
+
+    - name: Build APK for x86_64
+      run: |
+        flutter build apk --release --split-per-abi --target-platform android-x64
+
+    - name: List build outputs
+      run: ls -la build/app/outputs/flutter-apk/
+
+    - name: Create ZIP with all APKs
+      run: |
+        mkdir -p release
+        cp build/app/outputs/flutter-apk/*-release.apk release/
+        cd release
+        zip ../app-release-${{ steps.get_version.outputs.version }}.zip *.apk
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v2
+      with:
+        files: |
+          build/app/outputs/flutter-apk/*-release.apk
+          app-release-${{ steps.get_version.outputs.version }}.zip
+        tag_name: ${{ github.ref_name }}
+        body: "Release ${{ steps.get_version.outputs.version }}"
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
