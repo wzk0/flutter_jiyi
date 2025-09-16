@@ -8,7 +8,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
+    # 关键：添加这部分权限配置，允许创建 Release
+    permissions:
+      contents: write  # 核心权限，用于读写仓库内容（含创建/更新 Release）
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -38,17 +40,13 @@ jobs:
       run: |
         ls -la build/app/outputs/flutter-apk/
 
-    # ✅ 删除了 "Create ZIP with all APKs" 步骤
-
     - name: Create Release
       uses: softprops/action-gh-release@v2
       with:
-        # ✅ 直接上传所有 APK 文件
         files: |
           build/app/outputs/flutter-apk/*-release.apk
         tag_name: ${{ github.ref_name }}
-        body: "Debug-signed Release ${{ steps.get_version.outputs.version }}"
-        # 可选：自定义 Release 标题
+        body: "Release ${{ steps.get_version.outputs.version }}"
         name: Release ${{ steps.get_version.outputs.version }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
