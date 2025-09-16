@@ -22,7 +22,7 @@ jobs:
     - name: Set up Flutter
       uses: subosito/flutter-action@v2
       with:
-        flutter-version: '3.35.3'  # 替换为你使用的版本
+        flutter-version: '3.35.3'  # v0.0.2替换为你使用的版本
 
     - name: Decode Keystore
       run: |
