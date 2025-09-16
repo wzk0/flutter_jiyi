@@ -341,6 +341,10 @@ class _SettingsPageState extends State<SettingsPage> {
                             Divider(),
                             Text('您可以通过点击首页右上角搜索按钮设置多重条件来进行筛选.'),
                             Divider(),
+                            Text(
+                              '记易内置了一个计算器功能, 允许您进行简单的计算. 只需点击右上角搜索按钮左侧计算器按钮即可使用.',
+                            ),
+                            Divider(),
                             Text('目前就是这样. 再次感谢🙏使用记易!'),
                           ],
                         ),
@@ -370,7 +374,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 leading: Icon(Icons.code),
                 title: Text('源代码'),
                 onTap: () {
-                  _launchInBrowser('https://github.com/wzk0/flutter_jiyi    ');
+                  _launchInBrowser('https://github.com/wzk0/flutter_jiyi');
                 },
               ),
             ],
