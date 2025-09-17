@@ -63,18 +63,21 @@ class _SettingsPageState extends State<SettingsPage> {
   Future<void> _saveThemeColor(int colorValue) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('theme_color', colorValue);
+    setState(() {});
   }
 
   // 保存分割线设置
   Future<void> _saveDividerSetting(String key, bool value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(key, value);
+    setState(() {});
   }
 
   // 保存图标设置
   Future<void> _saveIconSetting(bool value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('is_icon', value);
+    setState(() {});
   }
 
   // 根据颜色值获取MaterialColor

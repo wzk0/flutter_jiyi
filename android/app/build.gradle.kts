@@ -27,7 +27,6 @@ android {
         versionName = flutter.versionName
     }
 
-    // ✅ 新增：签名配置（从环境变量读取）
     signingConfigs {
         create("release") {
             storeFile = file(System.getenv("KEYSTORE_FILE") ?: "upload-keystore.jks")
@@ -39,8 +38,8 @@ android {
 
     buildTypes {
         getByName("release") {
-            // ✅ 关键：使用正式签名配置
             signingConfig = signingConfigs.getByName("release")
+            //signingConfig = signingConfigs.getByName("debug")
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(

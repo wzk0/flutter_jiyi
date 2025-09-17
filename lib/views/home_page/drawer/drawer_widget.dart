@@ -7,6 +7,7 @@ import 'package:jiyi/views/home_page/drawer/expd_card/expd_card_widget.dart';
 import 'package:jiyi/views/home_page/tag_widget.dart';
 import 'package:jiyi/models/transaction.dart';
 import 'package:jiyi/services/database_service.dart';
+import 'package:jiyi/views/home_page/import_export_dialog.dart'; // 添加导入导出对话框导入
 
 class DrawerWidget extends StatefulWidget {
   const DrawerWidget({super.key});
@@ -97,6 +98,11 @@ class _DrawerWidgetState extends State<DrawerWidget> {
     } catch (e) {
       debugPrint('加载统计数据失败: $e');
     }
+  }
+
+  // 添加加载交易数据的方法（用于刷新）
+  Future<void> _loadTransactions() async {
+    await _loadStatistics(); // 重新加载统计数据
   }
 
   @override
@@ -255,10 +261,21 @@ class _DrawerWidgetState extends State<DrawerWidget> {
                 ),
                 const Divider(),
                 DrawerTitleWidget(actions: '操作'),
+                // 统一使用FilledButton.tonalIcon样式
                 FilledButton.tonalIcon(
-                  onPressed: () {},
+                  onPressed: () {
+                    // 智能分析功能
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(const SnackBar(content: Text('🚧施工中...')));
+                  },
                   icon: Icon(Icons.lightbulb),
                   label: Text('智能分析'),
+                ),
+                FilledButton.tonalIcon(
+                  onPressed: _showImportExportDialog, // 数据导入导出功能
+                  icon: Icon(Icons.swap_horiz),
+                  label: Text('数据管理'),
                 ),
               ],
             ),
@@ -266,5 +283,18 @@ class _DrawerWidgetState extends State<DrawerWidget> {
         ],
       ),
     );
+  }
+
+  // 显示导入导出对话框
+  void _showImportExportDialog() async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => const ImportExportDialog(),
+    );
+
+    // 如果导入成功，需要刷新数据
+    if (result == true) {
+      await _loadTransactions();
+    }
   }
 }
