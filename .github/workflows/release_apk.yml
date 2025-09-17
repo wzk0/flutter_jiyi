@@ -1,4 +1,4 @@
-name: Build APK (No Sign Required)
+name: Build & Release APK (With Signing)
 
 on:
   push:
@@ -8,6 +8,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write  # 允许创建 Release
 
     steps:
     - name: Checkout code
@@ -24,13 +26,18 @@ jobs:
       with:
         flutter-version: '3.35.3'
 
+    # ✅ 新增：解码签名密钥文件
+    - name: Decode Keystore
+      run: |
+        echo "${{ secrets.KEYSTORE_FILE }}" | base64 --decode > android/app/upload-keystore.jks
+
     - name: Get version from pubspec.yaml
       id: get_version
       run: |
         VERSION=$(grep 'version:' pubspec.yaml | awk '{print $2}' | cut -d'+' -f1)
         echo "version=$VERSION" >> $GITHUB_OUTPUT
 
-    - name: Build APK for all ABIs (using debug keystore)
+    - name: Build APK for all ABIs (signed)
       run: |
         flutter build apk --release --split-per-abi
 
@@ -38,17 +45,13 @@ jobs:
       run: |
         ls -la build/app/outputs/flutter-apk/
 
-    # ✅ 删除了 "Create ZIP with all APKs" 步骤
-
     - name: Create Release
       uses: softprops/action-gh-release@v2
       with:
-        # ✅ 直接上传所有 APK 文件
         files: |
           build/app/outputs/flutter-apk/*-release.apk
         tag_name: ${{ github.ref_name }}
-        body: "Debug-signed Release ${{ steps.get_version.outputs.version }}"
-        # 可选：自定义 Release 标题
+        body: "Signed Release ${{ steps.get_version.outputs.version }}"
         name: Release ${{ steps.get_version.outputs.version }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
