@@ -26,11 +26,10 @@ jobs:
       with:
         flutter-version: '3.35.3'
 
-    - name: 🔍 Debug Password Length
+    - name: Debug Password Length
       run: |
         echo "KEYSTORE_PASSWORD length: ${#KEYSTORE_PASSWORD}"
         echo "KEY_PASSWORD length: ${#KEY_PASSWORD}"
-        echo "Expected 'thdbd666' length is 8"
       env:
         KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
         KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
@@ -49,6 +48,9 @@ jobs:
     - name: Build APK for all ABIs (signed)
       run: |
         flutter build apk --release --split-per-abi
+      env:
+        KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+        KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
 
     - name: List generated APKs (for debugging)
       run: |
