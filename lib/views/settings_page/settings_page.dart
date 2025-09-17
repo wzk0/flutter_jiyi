@@ -27,7 +27,7 @@ class _SettingsPageState extends State<SettingsPage> {
   bool _showMonthDivider = false;
   bool _showDayDivider = false;
   bool _isIconEnabled = false; // 图标开关
-
+  bool _habit = false;
   bool _settingsLoaded = false; // 标记设置是否已加载
 
   @override
@@ -80,6 +80,12 @@ class _SettingsPageState extends State<SettingsPage> {
     setState(() {});
   }
 
+  Future<void> _saveHabitSetting(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('habit', value);
+    setState(() {});
+  }
+
   // 根据颜色值获取MaterialColor
   MaterialColor _getColorFromValue(int value) {
     for (var colorEntry in _themeColors) {
@@ -127,7 +133,7 @@ class _SettingsPageState extends State<SettingsPage> {
               Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(30),
-                  color: Theme.of(context).colorScheme.secondaryContainer,
+                  color: Theme.of(context).colorScheme.surfaceContainer,
                 ),
                 child: Theme(
                   data: Theme.of(context).copyWith(
@@ -155,7 +161,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 padding: EdgeInsets.all(8),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(30),
-                  color: Theme.of(context).colorScheme.secondaryContainer,
+                  color: Theme.of(context).colorScheme.surfaceContainer,
                 ),
                 child: Column(
                   children: [
@@ -227,7 +233,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 padding: EdgeInsets.all(8),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(30),
-                  color: Theme.of(context).colorScheme.secondaryContainer,
+                  color: Theme.of(context).colorScheme.surfaceContainer,
                 ),
                 child: SwitchListTile(
                   value: _settingsLoaded ? _isIconEnabled : false, // 使用加载状态
@@ -240,6 +246,38 @@ class _SettingsPageState extends State<SettingsPage> {
                   title: Text('卡片图标LOGO'),
                   subtitle: Text(
                     '在首页账目卡片启用固定图标LOGO, 否则显示分类的第一个字. 如"饮料-冰红茶"则会显示"饮"',
+                    style: TextStyle(fontSize: 12),
+                  ),
+                  activeThumbColor: Theme.of(context).colorScheme.primary,
+                ),
+              ),
+              Divider(height: 40),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  '习惯',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
+              ),
+              Container(
+                padding: EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(30),
+                  color: Theme.of(context).colorScheme.surfaceContainer,
+                ),
+                child: SwitchListTile(
+                  value: _settingsLoaded ? _habit : false, // 使用加载状态
+                  onChanged: (value) {
+                    setState(() {
+                      _habit = value;
+                    });
+                    _saveHabitSetting(value); // 保存图标设置
+                  },
+                  title: Text('双击删除账目'),
+                  subtitle: Text(
+                    '启用后双击卡片即可删除对应账目, 否则将使用长按删除. 设置后"编辑"操作与之相反',
                     style: TextStyle(fontSize: 12),
                   ),
                   activeThumbColor: Theme.of(context).colorScheme.primary,

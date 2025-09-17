@@ -1,5 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:jiyi/services/update_service.dart';
 import 'package:jiyi/views/home_page/drawer/drawer_title_widget.dart';
 import 'package:jiyi/views/home_page/drawer/expd_card/expd_card_highest_widget.dart';
 import 'package:jiyi/views/home_page/drawer/expd_card/expd_card_listtile_widget.dart';
@@ -7,7 +8,8 @@ import 'package:jiyi/views/home_page/drawer/expd_card/expd_card_widget.dart';
 import 'package:jiyi/views/home_page/tag_widget.dart';
 import 'package:jiyi/models/transaction.dart';
 import 'package:jiyi/services/database_service.dart';
-import 'package:jiyi/views/home_page/import_export_dialog.dart'; // 添加导入导出对话框导入
+import 'package:jiyi/views/home_page/import_export_dialog.dart';
+import 'package:url_launcher/url_launcher.dart'; // 添加导入导出对话框导入
 
 class DrawerWidget extends StatefulWidget {
   const DrawerWidget({super.key});
@@ -277,6 +279,11 @@ class _DrawerWidgetState extends State<DrawerWidget> {
                   icon: Icon(Icons.swap_horiz),
                   label: Text('数据管理'),
                 ),
+                FilledButton.tonalIcon(
+                  onPressed: _checkForUpdates,
+                  icon: Icon(Icons.system_update),
+                  label: Text('检查更新'),
+                ),
               ],
             ),
           ),
@@ -295,6 +302,91 @@ class _DrawerWidgetState extends State<DrawerWidget> {
     // 如果导入成功，需要刷新数据
     if (result == true) {
       await _loadTransactions();
+    }
+  }
+
+  void _checkForUpdates() async {
+    final snackBar = SnackBar(
+      content: Text('正在检查更新...'),
+      duration: Duration(seconds: 2),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+
+    try {
+      final updateInfo = await UpdateService.instance.checkForUpdates(
+        '0.0.21',
+      ); // 当前版本
+
+      if (updateInfo != null && updateInfo.isAvailable) {
+        _showUpdateDialog(updateInfo);
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('当前已是最新版本'),
+              backgroundColor: Theme.of(context).colorScheme.tertiary,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('检查更新失败: $e'),
+            backgroundColor: Theme.of(context).colorScheme.primary,
+          ),
+        );
+      }
+    }
+  }
+
+  void _showUpdateDialog(UpdateInfo updateInfo) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('发现新版本'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('版本: v${updateInfo.version}'),
+            const SizedBox(height: 8),
+            Text('更新内容:'),
+            const SizedBox(height: 4),
+            Text(updateInfo.releaseNotes, style: TextStyle(fontSize: 12)),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('稍后更新'),
+          ),
+          FilledButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _launchUrl(updateInfo.downloadUrl);
+            },
+            child: Text('立即更新'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // 打开下载链接
+  void _launchUrl(String url) async {
+    final Uri uri = Uri.parse(url);
+    try {
+      if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+        throw Exception('无法打开链接');
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('打开链接失败: $e')));
+      }
     }
   }
 }
