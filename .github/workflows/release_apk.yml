@@ -26,6 +26,15 @@ jobs:
       with:
         flutter-version: '3.35.3'
 
+    - name: 🔍 Debug Password Length
+      run: |
+        echo "KEYSTORE_PASSWORD length: ${#KEYSTORE_PASSWORD}"
+        echo "KEY_PASSWORD length: ${#KEY_PASSWORD}"
+        echo "Expected 'thdbd666' length is 8"
+      env:
+        KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+        KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+
     # ✅ 新增：解码签名密钥文件
     - name: Decode Keystore
       run: |
