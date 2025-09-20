@@ -314,7 +314,7 @@ class _DrawerWidgetState extends State<DrawerWidget> {
 
     try {
       final updateInfo = await UpdateService.instance.checkForUpdates(
-        '0.0.27',
+        '0.0.28',
       ); // 当前版本
 
       if (updateInfo != null && updateInfo.isAvailable) {
