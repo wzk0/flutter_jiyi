@@ -331,12 +331,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
               ),
               Container(
-                padding: EdgeInsets.only(
-                  left: 20,
-                  right: 20,
-                  top: 20,
-                  bottom: 12,
-                ),
+                padding: EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(30),
                   color: Theme.of(context).colorScheme.surfaceContainer,
@@ -359,46 +354,43 @@ class _SettingsPageState extends State<SettingsPage> {
                         ),
                         disabledBorder: OutlineInputBorder(
                           borderSide: BorderSide(
-                            color: Theme.of(context).colorScheme.primary,
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                         ),
                         labelStyle: TextStyle(
-                          color: Theme.of(context).colorScheme.primary,
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                         labelText: 'Qwen API Key',
                         border: OutlineInputBorder(),
                         suffixIcon: IconButton(
                           icon: Icon(
                             Icons.save,
-                            color: Theme.of(context).colorScheme.primary,
+                            color: Theme.of(context).colorScheme.onSurface,
+                            size: 23,
                           ),
                           onPressed: _saveApiKey,
                         ),
+                        isDense: true,
                       ),
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      '输入你的 Qwen API Key 以启用智能分析功能。',
+                      '输入 Qwen API Key 以启用智能分析功能',
                       style: TextStyle(fontSize: 12),
-                    ),
-                    const SizedBox(height: 8),
-                    OutlinedButton(
-                      onPressed: () {
-                        _launchInBrowser(
-                          'https://bailian.console.aliyun.com/?tab=model#/api-key',
-                        );
-                      },
-                      child: Text(
-                        '获取API Key',
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                      ),
                     ),
                   ],
                 ),
               ),
               Divider(height: 40),
+              ListTile(
+                leading: Icon(Icons.api),
+                title: Text('获取API Key'),
+                onTap: () {
+                  _launchInBrowser(
+                    'https://bailian.console.aliyun.com/?tab=model#/api-key',
+                  );
+                },
+              ),
               ListTile(
                 leading: Icon(Icons.tips_and_updates_outlined),
                 title: Text('提示'),

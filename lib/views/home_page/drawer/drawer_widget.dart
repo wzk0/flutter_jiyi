@@ -267,20 +267,25 @@ class _DrawerWidgetState extends State<DrawerWidget> {
                 const Divider(),
                 DrawerTitleWidget(actions: '操作'),
                 // 统一使用FilledButton.tonalIcon样式
-                FilledButton.tonalIcon(
-                  onPressed: _performAIAnalysis, // 调用 AI 分析方法
-                  icon: Icon(Icons.lightbulb),
-                  label: Text('智能分析'),
-                ),
-                FilledButton.tonalIcon(
-                  onPressed: _showImportExportDialog, // 数据导入导出功能
-                  icon: Icon(Icons.swap_horiz),
-                  label: Text('数据管理'),
-                ),
-                FilledButton.tonalIcon(
-                  onPressed: _checkForUpdates,
-                  icon: Icon(Icons.system_update),
-                  label: Text('检查更新'),
+                Wrap(
+                  spacing: 5,
+                  children: [
+                    FilledButton.tonalIcon(
+                      onPressed: _performAIAnalysis, // 调用 AI 分析方法
+                      icon: Icon(Icons.lightbulb),
+                      label: Text('智能分析'),
+                    ),
+                    FilledButton.tonalIcon(
+                      onPressed: _showImportExportDialog, // 数据导入导出功能
+                      icon: Icon(Icons.swap_horiz),
+                      label: Text('数据管理'),
+                    ),
+                    FilledButton.tonalIcon(
+                      onPressed: _checkForUpdates,
+                      icon: Icon(Icons.system_update),
+                      label: Text('检查更新'),
+                    ),
+                  ],
                 ),
               ],
             ),

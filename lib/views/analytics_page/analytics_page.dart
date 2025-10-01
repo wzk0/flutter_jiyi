@@ -1,3 +1,4 @@
+// lib/views/analytics_page/analytics_page.dart
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:jiyi/models/transaction.dart';
@@ -13,7 +14,7 @@ class AnalyticsPage extends StatefulWidget {
 class _AnalyticsPageState extends State<AnalyticsPage> {
   List<Transaction> _transactions = [];
   bool _isLoading = true;
-  AnalysisPeriod _currentPeriod = AnalysisPeriod.monthly; // 默认月度分析
+  AnalysisPeriod _currentPeriod = AnalysisPeriod.weekly; // 默认周度分析
 
   @override
   void initState() {
@@ -174,27 +175,20 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                       .map(
                         (data) => PieChartSectionData(
                           value: data.amount,
-                          title: '${data.percentage.toStringAsFixed(1)}%',
+                          title:
+                              '${data.category}\n${data.percentage.toStringAsFixed(1)}%', // 显示百分比
                           titleStyle: TextStyle(
                             color: Theme.of(context).colorScheme.onPrimary,
-                            fontSize: 12,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold, // 加粗标题更清晰
                           ),
                           color: data.color,
                           showTitle: true,
                         ),
                       )
                       .toList(),
-                  centerSpaceRadius: 50,
-                  // 添加长按显示详情
-                  pieTouchData: PieTouchData(
-                    touchCallback: (FlTouchEvent event, pieTouchResponse) {
-                      if (!event.isInterestedForInteractions ||
-                          pieTouchResponse == null ||
-                          pieTouchResponse.touchedSection == null) {
-                        return;
-                      }
-                    },
-                  ),
+                  centerSpaceRadius: 60, // 中心圆环
+                  // 移除触摸交互配置，只保留基本图表
                 ),
               ),
             ),
@@ -311,7 +305,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                   child: BarChart(
                     BarChartData(
                       alignment: BarChartAlignment.spaceAround,
-                      maxY: maxValue * 1.2, // 给顶部留些空间
+                      maxY: maxValue * 1.8, // 给顶部留些空间 (同步修改)
                       barGroups: trendData.asMap().entries.map((entry) {
                         final index = entry.key;
                         final value = entry.value;
@@ -320,13 +314,43 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                           barRods: [
                             BarChartRodData(
                               toY: value,
-                              color: Theme.of(context).colorScheme.primary,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.primary, // 支出颜色
                               width: 15,
-                              borderRadius: BorderRadius.circular(20),
+                              borderRadius: BorderRadius.circular(
+                                20,
+                              ), // 同步修改：添加圆角
                             ),
                           ],
                         );
                       }).toList(),
+                      barTouchData: BarTouchData(
+                        // 同步修改：添加触摸提示
+                        enabled: true,
+                        touchTooltipData: BarTouchTooltipData(
+                          tooltipBorderRadius: BorderRadius.circular(15),
+                          tooltipPadding: EdgeInsets.all(5),
+                          getTooltipColor: (group) {
+                            return Theme.of(
+                              context,
+                            ).colorScheme.primaryContainer; // 使用支出对应的主题色
+                          },
+                          getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                            final label = _getTrendLabel(group.x);
+                            final value = rod.toY;
+                            return BarTooltipItem(
+                              '$label\n¥ ${value.toStringAsFixed(2)}',
+                              TextStyle(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.primary, // 提示文字颜色
+                                fontSize: 12,
+                              ),
+                            );
+                          },
+                        ),
+                      ),
                       titlesData: FlTitlesData(
                         bottomTitles: AxisTitles(
                           sideTitles: SideTitles(
@@ -367,7 +391,9 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                           ),
                         ),
                         topTitles: AxisTitles(
-                          sideTitles: SideTitles(showTitles: false), // 移除顶部轴
+                          sideTitles: SideTitles(
+                            showTitles: false,
+                          ), // 移除顶部轴 (同步修改)
                         ),
                         rightTitles: AxisTitles(
                           sideTitles: SideTitles(showTitles: false),
@@ -380,6 +406,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                         drawVerticalLine: false,
                         horizontalInterval: maxValue > 0 ? maxValue / 5 : 1,
                       ),
+                      // 移除触摸交互配置，只保留基本图表
                     ),
                   ),
                 ),
@@ -419,7 +446,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                   child: BarChart(
                     BarChartData(
                       alignment: BarChartAlignment.spaceAround,
-                      maxY: maxValue * 1.2, // 给顶部留些空间
+                      maxY: maxValue * 1.8, // 给顶部留些空间
                       barGroups: trendData.asMap().entries.map((entry) {
                         final index = entry.key;
                         final value = entry.value;
@@ -428,13 +455,43 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                           barRods: [
                             BarChartRodData(
                               toY: value,
-                              color: Theme.of(context).colorScheme.tertiary,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.tertiary, // 收入颜色
                               width: 15,
-                              borderRadius: BorderRadius.circular(20),
+                              borderRadius: BorderRadius.circular(
+                                20,
+                              ), // 同步修改：添加圆角
                             ),
                           ],
                         );
                       }).toList(),
+                      barTouchData: BarTouchData(
+                        // 同步修改：添加触摸提示
+                        enabled: true,
+                        touchTooltipData: BarTouchTooltipData(
+                          tooltipBorderRadius: BorderRadius.circular(15),
+                          tooltipPadding: EdgeInsets.all(5),
+                          getTooltipColor: (group) {
+                            return Theme.of(
+                              context,
+                            ).colorScheme.tertiaryContainer; // 使用收入对应的主题色
+                          },
+                          getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                            final label = _getTrendLabel(group.x);
+                            final value = rod.toY;
+                            return BarTooltipItem(
+                              '$label\n¥ ${value.toStringAsFixed(2)}',
+                              TextStyle(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.tertiary, // 提示文字颜色
+                                fontSize: 12,
+                              ),
+                            );
+                          },
+                        ),
+                      ),
                       titlesData: FlTitlesData(
                         bottomTitles: AxisTitles(
                           sideTitles: SideTitles(
@@ -488,6 +545,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                         drawVerticalLine: false,
                         horizontalInterval: maxValue > 0 ? maxValue / 5 : 1,
                       ),
+                      // 移除触摸交互配置，只保留基本图表
                     ),
                   ),
                 ),
@@ -765,16 +823,16 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
               height: 200,
               child: BarChart(
                 BarChartData(
-                  maxY: maxValue * 1.2,
+                  maxY: maxValue * 1.8, // 给顶部留些空间 (同步修改)
                   barGroups: [
                     BarChartGroupData(
                       x: 0,
                       barRods: [
                         BarChartRodData(
                           toY: stats.totalIncome,
-                          color: Theme.of(context).colorScheme.tertiary,
+                          color: Theme.of(context).colorScheme.tertiary, // 收入颜色
                           width: 15,
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(20), // 同步修改：添加圆角
                         ),
                       ],
                     ),
@@ -783,13 +841,44 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                       barRods: [
                         BarChartRodData(
                           toY: stats.totalExpense,
-                          color: Theme.of(context).colorScheme.primary,
+                          color: Theme.of(context).colorScheme.primary, // 支出颜色
                           width: 15,
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(20), // 同步修改：添加圆角
                         ),
                       ],
                     ),
                   ],
+                  barTouchData: BarTouchData(
+                    // 同步修改：添加触摸提示
+                    enabled: true,
+                    touchTooltipData: BarTouchTooltipData(
+                      tooltipBorderRadius: BorderRadius.circular(15),
+                      tooltipPadding: EdgeInsets.all(5),
+                      getTooltipColor: (group) {
+                        // 根据 x 轴索引决定颜色
+                        return group.x == 0
+                            ? Theme.of(context)
+                                  .colorScheme
+                                  .tertiaryContainer // 收入对应颜色
+                            : Theme.of(
+                                context,
+                              ).colorScheme.primaryContainer; // 支出对应颜色
+                      },
+                      getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                        String label = groupIndex == 0 ? '收入' : '支出';
+                        final value = rod.toY;
+                        Color textColor = groupIndex == 0
+                            ? Theme.of(context)
+                                  .colorScheme
+                                  .tertiary // 收入文字颜色
+                            : Theme.of(context).colorScheme.primary; // 支出文字颜色
+                        return BarTooltipItem(
+                          '$label\n¥ ${value.toStringAsFixed(2)}',
+                          TextStyle(color: textColor, fontSize: 12),
+                        );
+                      },
+                    ),
+                  ),
                   titlesData: FlTitlesData(
                     bottomTitles: AxisTitles(
                       sideTitles: SideTitles(
@@ -834,7 +923,9 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                       ),
                     ),
                     topTitles: AxisTitles(
-                      sideTitles: SideTitles(showTitles: false), // 隐藏顶部横轴
+                      sideTitles: SideTitles(
+                        showTitles: false,
+                      ), // 隐藏顶部横轴 (同步修改)
                     ),
                     rightTitles: AxisTitles(
                       sideTitles: SideTitles(showTitles: false),
@@ -847,6 +938,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                     drawVerticalLine: false,
                     horizontalInterval: maxValue > 0 ? maxValue / 5 : 1,
                   ),
+                  // 移除触摸交互配置，只保留基本图表
                 ),
               ),
             ),
@@ -880,27 +972,20 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                       .map(
                         (data) => PieChartSectionData(
                           value: data.amount,
-                          title: '${data.percentage.toStringAsFixed(1)}%',
+                          title:
+                              '${data.category}\n${data.percentage.toStringAsFixed(1)} %', // 显示百分比
                           titleStyle: TextStyle(
                             color: Theme.of(context).colorScheme.onPrimary,
-                            fontSize: 12,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold, // 加粗标题更清晰
                           ),
                           color: data.color,
                           showTitle: true,
                         ),
                       )
                       .toList(),
-                  centerSpaceRadius: 50,
-                  // 添加长按显示详情
-                  pieTouchData: PieTouchData(
-                    touchCallback: (FlTouchEvent event, pieTouchResponse) {
-                      if (!event.isInterestedForInteractions ||
-                          pieTouchResponse == null ||
-                          pieTouchResponse.touchedSection == null) {
-                        return;
-                      }
-                    },
-                  ),
+                  centerSpaceRadius: 60, // 中心圆环
+                  pieTouchData: PieTouchData(enabled: true),
                 ),
               ),
             ),
