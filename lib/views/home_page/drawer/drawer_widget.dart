@@ -11,7 +11,6 @@ import 'package:jiyi/views/home_page/tag_widget.dart';
 import 'package:jiyi/models/transaction.dart';
 import 'package:jiyi/services/database_service.dart';
 import 'package:jiyi/views/home_page/import_export_dialog.dart';
-import 'package:jiyi/views/settings_page/settings_page.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:jiyi/services/ai_service.dart'; // 导入AI分析服务
 
@@ -297,24 +296,9 @@ class _DrawerWidgetState extends State<DrawerWidget> {
     final hasKey = await AIAnalysisService.instance.hasApiKey();
     if (!hasKey) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('请先在设置中输入 Qwen API Key'),
-            action: SnackBarAction(
-              label: '去设置',
-              onPressed: () {
-                Navigator.pop(context); // 关闭 Drawer
-                // 假设你有设置页面路由，否则直接打开设置页面
-                // Navigator.pushNamed(context, '/settings');
-                // 或者直接打开设置页面
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => SettingsPage()),
-                );
-              },
-            ),
-          ),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('请先在设置中输入 Qwen API Key')));
       }
       return;
     }

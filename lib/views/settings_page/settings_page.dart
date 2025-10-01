@@ -530,7 +530,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 leading: Icon(Icons.code),
                 title: Text('源代码'),
                 onTap: () {
-                  _launchInBrowser('https://github.com/wzk0/flutter_jiyi  ');
+                  _launchInBrowser('https://github.com/wzk0/flutter_jiyi');
                 },
               ),
             ],
