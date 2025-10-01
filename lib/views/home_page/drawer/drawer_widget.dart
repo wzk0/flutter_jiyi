@@ -1,6 +1,8 @@
+// lib/views/home_page/drawer/drawer_widget.dart
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:jiyi/services/update_service.dart';
+import 'package:jiyi/views/ai_page/ai_page.dart';
 import 'package:jiyi/views/home_page/drawer/drawer_title_widget.dart';
 import 'package:jiyi/views/home_page/drawer/expd_card/expd_card_highest_widget.dart';
 import 'package:jiyi/views/home_page/drawer/expd_card/expd_card_listtile_widget.dart';
@@ -9,7 +11,9 @@ import 'package:jiyi/views/home_page/tag_widget.dart';
 import 'package:jiyi/models/transaction.dart';
 import 'package:jiyi/services/database_service.dart';
 import 'package:jiyi/views/home_page/import_export_dialog.dart';
-import 'package:url_launcher/url_launcher.dart'; // 添加导入导出对话框导入
+import 'package:jiyi/views/settings_page/settings_page.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:jiyi/services/ai_service.dart'; // 导入AI分析服务
 
 class DrawerWidget extends StatefulWidget {
   const DrawerWidget({super.key});
@@ -265,12 +269,7 @@ class _DrawerWidgetState extends State<DrawerWidget> {
                 DrawerTitleWidget(actions: '操作'),
                 // 统一使用FilledButton.tonalIcon样式
                 FilledButton.tonalIcon(
-                  onPressed: () {
-                    // 智能分析功能
-                    ScaffoldMessenger.of(
-                      context,
-                    ).showSnackBar(const SnackBar(content: Text('🚧施工中...')));
-                  },
+                  onPressed: _performAIAnalysis, // 调用 AI 分析方法
                   icon: Icon(Icons.lightbulb),
                   label: Text('智能分析'),
                 ),
@@ -290,6 +289,87 @@ class _DrawerWidgetState extends State<DrawerWidget> {
         ],
       ),
     );
+  }
+
+  // 执行 AI 分析
+  Future<void> _performAIAnalysis() async {
+    // 检查是否已配置 API Key
+    final hasKey = await AIAnalysisService.instance.hasApiKey();
+    if (!hasKey) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('请先在设置中输入 Qwen API Key'),
+            action: SnackBarAction(
+              label: '去设置',
+              onPressed: () {
+                Navigator.pop(context); // 关闭 Drawer
+                // 假设你有设置页面路由，否则直接打开设置页面
+                // Navigator.pushNamed(context, '/settings');
+                // 或者直接打开设置页面
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => SettingsPage()),
+                );
+              },
+            ),
+          ),
+        );
+      }
+      return;
+    }
+
+    // 显示加载提示
+    if (mounted) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => AlertDialog(
+          title: Text('分析中'),
+          content: Row(
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(width: 20),
+              Text('正在分析您的账目数据...'),
+            ],
+          ),
+        ),
+      );
+    }
+
+    try {
+      // 调用服务生成分析
+      final analysisResult = await AIAnalysisService.instance
+          .generateAnalysis();
+
+      // 关闭加载提示
+      if (mounted) {
+        Navigator.of(context).pop(); // 关闭加载对话框
+      }
+
+      // 显示分析结果（可以是新页面或对话框）
+      if (mounted) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) {
+              return AiPage(result: analysisResult);
+            },
+          ),
+        );
+      }
+    } catch (e) {
+      // 关闭加载提示（如果还在）
+      if (mounted) {
+        Navigator.of(context).maybePop(); // 安全地尝试关闭加载对话框
+      }
+      debugPrint('AI 分析失败: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('AI 分析失败: $e')));
+      }
+    }
   }
 
   // 显示导入导出对话框
@@ -314,7 +394,7 @@ class _DrawerWidgetState extends State<DrawerWidget> {
 
     try {
       final updateInfo = await UpdateService.instance.checkForUpdates(
-        '0.0.29',
+        '0.0.30',
       ); // 当前版本
 
       if (updateInfo != null && updateInfo.isAvailable) {

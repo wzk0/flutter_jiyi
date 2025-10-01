@@ -1,6 +1,9 @@
+// lib/views/settings_page/settings_page.dart
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:jiyi/services/ai_service.dart';
+// 导入AI分析服务
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -30,10 +33,14 @@ class _SettingsPageState extends State<SettingsPage> {
   bool _habit = false;
   bool _settingsLoaded = false; // 标记设置是否已加载
 
+  // 添加用于 API Key 输入的控制器
+  final TextEditingController _apiKeyController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
     _loadSettings();
+    _loadApiKey(); // 加载 API Key
   }
 
   // 加载所有设置
@@ -47,7 +54,8 @@ class _SettingsPageState extends State<SettingsPage> {
     final showYearDivider = prefs.getBool('show_year_divider') ?? false;
     final showMonthDivider = prefs.getBool('show_month_divider') ?? false;
     final showDayDivider = prefs.getBool('show_day_divider') ?? false;
-    final isIconEnabled = prefs.getBool('is_icon') ?? false; // 加载图标设置
+    final isIconEnabled = prefs.getBool('is_icon') ?? false;
+    final habit = prefs.getBool('habit') ?? false;
 
     setState(() {
       _currentThemeColor = _getColorFromValue(colorValue);
@@ -55,8 +63,17 @@ class _SettingsPageState extends State<SettingsPage> {
       _showMonthDivider = showMonthDivider;
       _showDayDivider = showDayDivider;
       _isIconEnabled = isIconEnabled;
-      _settingsLoaded = true; // 标记设置已加载完成
+      _habit = habit;
+      _settingsLoaded = true;
     });
+  }
+
+  // 加载 API Key
+  Future<void> _loadApiKey() async {
+    final apiKey = await AIAnalysisService.instance.getApiKey();
+    if (apiKey != null) {
+      _apiKeyController.text = apiKey;
+    }
   }
 
   // 保存主题颜色
@@ -105,6 +122,25 @@ class _SettingsPageState extends State<SettingsPage> {
       }
     } catch (e) {
       debugPrint('Error launching URL: $e');
+    }
+  }
+
+  // 保存 API Key
+  Future<void> _saveApiKey() async {
+    final apiKey = _apiKeyController.text.trim();
+    if (apiKey.isNotEmpty) {
+      await AIAnalysisService.instance.saveApiKey(apiKey);
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('API Key 已保存')));
+      }
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('请输入有效的 API Key')));
+      }
     }
   }
 
@@ -284,6 +320,85 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
               ),
               Divider(height: 40),
+              // --- 新增：AI 分析设置 ---
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  '智能分析',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
+              ),
+              Container(
+                padding: EdgeInsets.only(
+                  left: 20,
+                  right: 20,
+                  top: 20,
+                  bottom: 12,
+                ),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(30),
+                  color: Theme.of(context).colorScheme.surfaceContainer,
+                ),
+                child: Column(
+                  children: [
+                    TextField(
+                      controller: _apiKeyController,
+                      obscureText: true,
+                      decoration: InputDecoration(
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                        ),
+                        disabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                        ),
+                        labelStyle: TextStyle(
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                        labelText: 'Qwen API Key',
+                        border: OutlineInputBorder(),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            Icons.save,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                          onPressed: _saveApiKey,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      '输入你的 Qwen API Key 以启用智能分析功能。',
+                      style: TextStyle(fontSize: 12),
+                    ),
+                    const SizedBox(height: 8),
+                    OutlinedButton(
+                      onPressed: () {
+                        _launchInBrowser(
+                          'https://bailian.console.aliyun.com/?tab=model#/api-key',
+                        );
+                      },
+                      child: Text(
+                        '获取API Key',
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Divider(height: 40),
               ListTile(
                 leading: Icon(Icons.tips_and_updates_outlined),
                 title: Text('提示'),
@@ -401,7 +516,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   showAboutDialog(
                     context: context,
                     applicationName: '记易',
-                    applicationVersion: '0.0.29',
+                    applicationVersion: '0.0.30',
                     applicationLegalese: '© 2025 wzk0 & thdbd',
                     applicationIcon: Image.asset(
                       'assets/icon/1024.png',
@@ -415,7 +530,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 leading: Icon(Icons.code),
                 title: Text('源代码'),
                 onTap: () {
-                  _launchInBrowser('https://github.com/wzk0/flutter_jiyi');
+                  _launchInBrowser('https://github.com/wzk0/flutter_jiyi  ');
                 },
               ),
             ],

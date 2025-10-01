@@ -27,7 +27,10 @@ class ExpdCardHighestWidget extends StatelessWidget {
           child: Column(
             spacing: 5,
             children: [
-              Text('¥ $money', style: TextStyle(fontSize: 26, color: txcolor)),
+              Text(
+                '¥ $money',
+                style: TextStyle(fontSize: 24.7, color: txcolor),
+              ),
               Text(
                 descr,
                 style: TextStyle(
