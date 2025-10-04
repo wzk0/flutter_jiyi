@@ -56,10 +56,11 @@ class ItemCardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<bool>(
+    return FutureBuilder<List>(
       future: _getHabitPreference(), // 读取SharedPreferences中的habit值
       builder: (context, snapshot) {
-        final bool isHabitEnabled = snapshot.data ?? false; // 默认为false
+        final bool isHabitEnabled = snapshot.data?[0] ?? false; // 默认为false
+        final bool isMoneyPosition = snapshot.data?[1] ?? false; // 默认为false
 
         return Card(
           margin: const EdgeInsets.all(5),
@@ -172,6 +173,17 @@ class ItemCardWidget extends StatelessWidget {
                                                   context,
                                                 ).colorScheme.tertiary,
                                         ),
+                                        isMoneyPosition
+                                            ? SizedBox()
+                                            : TagWidget(
+                                                tag: '¥ $money',
+                                                bgcolor: Theme.of(context)
+                                                    .colorScheme
+                                                    .secondaryContainer,
+                                                txcolor: Theme.of(
+                                                  context,
+                                                ).colorScheme.secondary,
+                                              ),
                                       ]
                                     : [
                                         Text(
@@ -219,6 +231,17 @@ class ItemCardWidget extends StatelessWidget {
                                                 ).colorScheme.secondary,
                                               )
                                             : SizedBox(),
+                                        isMoneyPosition
+                                            ? SizedBox()
+                                            : TagWidget(
+                                                tag: '¥ $money',
+                                                bgcolor: Theme.of(context)
+                                                    .colorScheme
+                                                    .secondaryContainer,
+                                                txcolor: Theme.of(
+                                                  context,
+                                                ).colorScheme.secondary,
+                                              ),
                                       ],
                               ),
                               Row(
@@ -246,29 +269,35 @@ class ItemCardWidget extends StatelessWidget {
                           ),
                         ],
                       ),
-                      Container(
-                        padding: EdgeInsets.only(
-                          left: 7,
-                          right: 7,
-                          top: 5,
-                          bottom: 5,
-                        ),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          color: isCost
-                              ? Theme.of(context).colorScheme.primaryContainer
-                              : Theme.of(context).colorScheme.tertiaryContainer,
-                        ),
-                        child: Text(
-                          isCost ? '¥ -$money' : '¥ $money',
-                          style: TextStyle(
-                            color: isCost
-                                ? Theme.of(context).colorScheme.primary
-                                : Theme.of(context).colorScheme.tertiary,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ),
+                      isMoneyPosition
+                          ? Container(
+                              padding: EdgeInsets.only(
+                                left: 7,
+                                right: 7,
+                                top: 5,
+                                bottom: 5,
+                              ),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                                color: isCost
+                                    ? Theme.of(
+                                        context,
+                                      ).colorScheme.primaryContainer
+                                    : Theme.of(
+                                        context,
+                                      ).colorScheme.tertiaryContainer,
+                              ),
+                              child: Text(
+                                isCost ? '¥ -$money' : '¥ $money',
+                                style: TextStyle(
+                                  color: isCost
+                                      ? Theme.of(context).colorScheme.primary
+                                      : Theme.of(context).colorScheme.tertiary,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            )
+                          : SizedBox(),
                     ],
                   );
                 },
@@ -287,8 +316,10 @@ class ItemCardWidget extends StatelessWidget {
   }
 
   // 读取SharedPreferences中的habit值
-  Future<bool> _getHabitPreference() async {
+  Future<List> _getHabitPreference() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool('habit') ?? false; // 默认为false
+    bool habit = prefs.getBool('habit') ?? false; // 默认为false
+    bool moneyposition = prefs.getBool('moneyposition') ?? false;
+    return [habit, moneyposition];
   }
 }

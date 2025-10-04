@@ -31,6 +31,7 @@ class _SettingsPageState extends State<SettingsPage> {
   bool _showDayDivider = false;
   bool _isIconEnabled = false; // 图标开关
   bool _habit = false;
+  bool _moneyposition = false;
   bool _settingsLoaded = false; // 标记设置是否已加载
 
   // 添加用于 API Key 输入的控制器
@@ -56,6 +57,7 @@ class _SettingsPageState extends State<SettingsPage> {
     final showDayDivider = prefs.getBool('show_day_divider') ?? false;
     final isIconEnabled = prefs.getBool('is_icon') ?? false;
     final habit = prefs.getBool('habit') ?? false;
+    final moneyposition = prefs.getBool('moneyposition') ?? false;
 
     setState(() {
       _currentThemeColor = _getColorFromValue(colorValue);
@@ -64,6 +66,7 @@ class _SettingsPageState extends State<SettingsPage> {
       _showDayDivider = showDayDivider;
       _isIconEnabled = isIconEnabled;
       _habit = habit;
+      _moneyposition = moneyposition;
       _settingsLoaded = true;
     });
   }
@@ -100,6 +103,12 @@ class _SettingsPageState extends State<SettingsPage> {
   Future<void> _saveHabitSetting(bool value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('habit', value);
+    setState(() {});
+  }
+
+  Future<void> _saveMoneyPositionSetting(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('moneyposition', value);
     setState(() {});
   }
 
@@ -320,6 +329,38 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
               ),
               Divider(height: 40),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  '样式',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
+              ),
+              Container(
+                padding: EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(30),
+                  color: Theme.of(context).colorScheme.surfaceContainer,
+                ),
+                child: SwitchListTile(
+                  value: _settingsLoaded ? _moneyposition : false, // 使用加载状态
+                  onChanged: (value) {
+                    setState(() {
+                      _moneyposition = value;
+                    });
+                    _saveMoneyPositionSetting(value); // 保存图标设置
+                  },
+                  title: Text('卡片金额位置'),
+                  subtitle: Text(
+                    '启用后将在卡片末尾显示金额, 否则按旧样式显示为标签',
+                    style: TextStyle(fontSize: 12),
+                  ),
+                  activeThumbColor: Theme.of(context).colorScheme.primary,
+                ),
+              ),
+              Divider(height: 40),
               // --- 新增：AI 分析设置 ---
               Padding(
                 padding: const EdgeInsets.all(8.0),
@@ -508,7 +549,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   showAboutDialog(
                     context: context,
                     applicationName: '记易',
-                    applicationVersion: '0.0.32',
+                    applicationVersion: '0.0.33',
                     applicationLegalese: '© 2025 wzk0 & thdbd',
                     applicationIcon: Image.asset(
                       'assets/icon/1024.png',
