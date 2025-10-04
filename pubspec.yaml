@@ -22,6 +22,7 @@ dependencies:
   archive: ^4.0.7
   clipboard: ^2.0.2
   http: ^1.5.0
+  characters: ^1.4.0
 
 dev_dependencies:
   flutter_test:

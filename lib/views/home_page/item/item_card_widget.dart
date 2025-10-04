@@ -41,6 +41,26 @@ class ItemCardWidget extends StatelessWidget {
     return '${date.year}年${date.month.toString()}月${date.day.toString()}日 ${date.hour.toString()}点${date.minute.toString()}分 ${_getChineseWeekday(date)}';
   }
 
+  String getFirstCharacterBeforeDash(String name) {
+    // 如果没有 '-'，按你的逻辑返回 '-' 或原字符串？你原逻辑是返回 '-'
+    if (!name.contains('-')) {
+      return '-'; // 或 return name.characters.first.toString();
+    }
+
+    // 找到第一个 '-' 的位置（在原始字符串中）
+    final dashIndex = name.indexOf('-');
+    if (dashIndex <= 0) {
+      return '-'; // 没有有效前缀
+    }
+
+    // 取 '-' 之前的部分
+    final prefix = name.substring(0, dashIndex);
+
+    // 使用 characters 安全取第一个“用户可见字符”
+    final firstChar = prefix.characters.firstOrNull;
+    return firstChar?.toString() ?? '-';
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<bool>(
@@ -84,7 +104,7 @@ class ItemCardWidget extends StatelessWidget {
                                           ).colorScheme.tertiary,
                                   )
                                 : Text(
-                                    name.contains('-') ? name[0] : '-', // 使用文本
+                                    getFirstCharacterBeforeDash(name), // 使用文本
                                     style: TextStyle(
                                       color: isCost
                                           ? Theme.of(
@@ -159,15 +179,6 @@ class ItemCardWidget extends StatelessWidget {
                                                   context,
                                                 ).colorScheme.tertiary,
                                         ),
-                                        TagWidget(
-                                          tag: '¥ $money',
-                                          bgcolor: Theme.of(
-                                            context,
-                                          ).colorScheme.secondaryContainer,
-                                          txcolor: Theme.of(
-                                            context,
-                                          ).colorScheme.secondary,
-                                        ),
                                       ]
                                     : [
                                         Text(
@@ -204,15 +215,17 @@ class ItemCardWidget extends StatelessWidget {
                                                   context,
                                                 ).colorScheme.tertiary,
                                         ),
-                                        TagWidget(
-                                          tag: '¥ $money',
-                                          bgcolor: Theme.of(
-                                            context,
-                                          ).colorScheme.secondaryContainer,
-                                          txcolor: Theme.of(
-                                            context,
-                                          ).colorScheme.secondary,
-                                        ),
+                                        name.contains('-')
+                                            ? TagWidget(
+                                                tag: name[0],
+                                                bgcolor: Theme.of(context)
+                                                    .colorScheme
+                                                    .secondaryContainer,
+                                                txcolor: Theme.of(
+                                                  context,
+                                                ).colorScheme.secondary,
+                                              )
+                                            : SizedBox(),
                                       ],
                               ),
                               Row(
@@ -239,6 +252,29 @@ class ItemCardWidget extends StatelessWidget {
                             ],
                           ),
                         ],
+                      ),
+                      Container(
+                        padding: EdgeInsets.only(
+                          left: 8,
+                          right: 8,
+                          top: 6,
+                          bottom: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          color: isCost
+                              ? Theme.of(context).colorScheme.primaryContainer
+                              : Theme.of(context).colorScheme.tertiaryContainer,
+                        ),
+                        child: Text(
+                          isCost ? '¥ -$money' : '¥ $money',
+                          style: TextStyle(
+                            color: isCost
+                                ? Theme.of(context).colorScheme.primary
+                                : Theme.of(context).colorScheme.tertiary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
                     ],
                   );
