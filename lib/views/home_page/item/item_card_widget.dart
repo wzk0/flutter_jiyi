@@ -42,21 +42,14 @@ class ItemCardWidget extends StatelessWidget {
   }
 
   String getFirstCharacterBeforeDash(String name) {
-    // 如果没有 '-'，按你的逻辑返回 '-' 或原字符串？你原逻辑是返回 '-'
     if (!name.contains('-')) {
-      return '-'; // 或 return name.characters.first.toString();
+      return '-';
     }
-
-    // 找到第一个 '-' 的位置（在原始字符串中）
     final dashIndex = name.indexOf('-');
     if (dashIndex <= 0) {
-      return '-'; // 没有有效前缀
+      return '-';
     }
-
-    // 取 '-' 之前的部分
     final prefix = name.substring(0, dashIndex);
-
-    // 使用 characters 安全取第一个“用户可见字符”
     final firstChar = prefix.characters.firstOrNull;
     return firstChar?.toString() ?? '-';
   }
@@ -255,10 +248,10 @@ class ItemCardWidget extends StatelessWidget {
                       ),
                       Container(
                         padding: EdgeInsets.only(
-                          left: 8,
-                          right: 8,
-                          top: 6,
-                          bottom: 6,
+                          left: 7,
+                          right: 7,
+                          top: 5,
+                          bottom: 5,
                         ),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(10),
@@ -272,7 +265,7 @@ class ItemCardWidget extends StatelessWidget {
                             color: isCost
                                 ? Theme.of(context).colorScheme.primary
                                 : Theme.of(context).colorScheme.tertiary,
-                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
                           ),
                         ),
                       ),

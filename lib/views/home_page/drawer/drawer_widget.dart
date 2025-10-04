@@ -383,7 +383,7 @@ class _DrawerWidgetState extends State<DrawerWidget> {
 
     try {
       final updateInfo = await UpdateService.instance.checkForUpdates(
-        '0.0.31',
+        '0.0.32',
       ); // 当前版本
 
       if (updateInfo != null && updateInfo.isAvailable) {
