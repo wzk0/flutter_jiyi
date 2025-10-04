@@ -136,12 +136,13 @@ class AIAnalysisService {
     });
     buffer.writeln('');
     buffer.writeln('请分析:');
-    buffer.writeln('1. 指出主要的支出类别，并评估其合理性。');
+    buffer.writeln('1. 指出主要的支出/收入类别/条目，并评估其合理性。');
     buffer.writeln('2. 指出主要的收入来源。');
     buffer.writeln('3. 识别任何潜在的财务风险或值得关注的趋势。');
     buffer.writeln('4. 提供 2-3 条具体的、可操作的财务优化建议。');
+    buffer.writeln('5. 其他更多你想补充的点.');
     buffer.writeln('---');
-    buffer.writeln('请用中文回复，语言简洁明了，重点突出。');
+    buffer.writeln('请用中文回复，语言简洁明了，重点突出。(不要使用markdown格式)');
 
     return buffer.toString();
   }

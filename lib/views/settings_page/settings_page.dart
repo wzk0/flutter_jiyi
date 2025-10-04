@@ -508,7 +508,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   showAboutDialog(
                     context: context,
                     applicationName: '记易',
-                    applicationVersion: '0.0.30',
+                    applicationVersion: '0.0.31',
                     applicationLegalese: '© 2025 wzk0 & thdbd',
                     applicationIcon: Image.asset(
                       'assets/icon/1024.png',
