@@ -4,11 +4,11 @@ import 'package:jiyi/views/home_page/item/item_card_widget.dart';
 
 class ItemListWidget extends StatelessWidget {
   final List<Transaction> transactions;
-  final Function(Transaction)? onEdit; // 添加编辑回调
-  final Function(Transaction)? onDelete; // 添加删除回调
-  final bool showYearDivider; // 是否显示年分割线
-  final bool showMonthDivider; // 是否显示月分割线
-  final bool showDayDivider; // 是否显示日分割线
+  final Function(Transaction)? onEdit;
+  final Function(Transaction)? onDelete;
+  final bool showYearDivider;
+  final bool showMonthDivider;
+  final bool showDayDivider;
 
   const ItemListWidget({
     super.key,
@@ -22,7 +22,6 @@ class ItemListWidget extends StatelessWidget {
 
   String _getChineseWeekday(DateTime date) {
     final weekdays = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
-    // weekday 是 1~7，对应 List 的索引 0~6
     return weekdays[date.weekday - 1];
   }
 
@@ -37,7 +36,6 @@ class ItemListWidget extends StatelessWidget {
       );
     }
 
-    // 如果不需要分割线，直接使用原来的列表
     if (!showYearDivider && !showMonthDivider && !showDayDivider) {
       return ListView.builder(
         itemCount: transactions.length,
@@ -53,7 +51,6 @@ class ItemListWidget extends StatelessWidget {
       );
     }
 
-    // 需要分割线时，重新组织列表项
     final itemsWithDividers = _buildItemsWithDividers(context);
 
     return ListView.builder(
@@ -74,14 +71,11 @@ class ItemListWidget extends StatelessWidget {
     );
   }
 
-  // 构建带分割线的列表项
-  // 构建带分割线的列表项
   List<Object> _buildItemsWithDividers(BuildContext context) {
     final List<Object> items = [];
 
     if (transactions.isEmpty) return items;
 
-    // 按日期排序（最新的在前面）
     final sortedTransactions = List<Transaction>.from(transactions)
       ..sort((a, b) => b.date.compareTo(a.date));
 
@@ -89,19 +83,16 @@ class ItemListWidget extends StatelessWidget {
     String? lastMonth;
     String? lastDay;
 
-    // 用于统计各时间段的收入支出
     final yearStats = <String, Map<String, double>>{};
     final monthStats = <String, Map<String, double>>{};
     final dayStats = <String, Map<String, double>>{};
 
-    // 预先计算统计数据
     for (final transaction in sortedTransactions) {
       final yearKey = '${transaction.date.year}年';
       final monthKey = '${transaction.date.year}年${transaction.date.month}月';
       final dayKey =
           '${transaction.date.year}年${transaction.date.month}月${transaction.date.day}日';
 
-      // 年统计
       yearStats.putIfAbsent(yearKey, () => {'income': 0, 'expense': 0});
       if (transaction.type == TransactionType.income) {
         yearStats[yearKey]!['income'] =
@@ -111,7 +102,6 @@ class ItemListWidget extends StatelessWidget {
             yearStats[yearKey]!['expense']! + transaction.money;
       }
 
-      // 月统计
       monthStats.putIfAbsent(monthKey, () => {'income': 0, 'expense': 0});
       if (transaction.type == TransactionType.income) {
         monthStats[monthKey]!['income'] =
@@ -121,7 +111,6 @@ class ItemListWidget extends StatelessWidget {
             monthStats[monthKey]!['expense']! + transaction.money;
       }
 
-      // 日统计
       dayStats.putIfAbsent(dayKey, () => {'income': 0, 'expense': 0});
       if (transaction.type == TransactionType.income) {
         dayStats[dayKey]!['income'] =
@@ -140,7 +129,6 @@ class ItemListWidget extends StatelessWidget {
       final transactionDay =
           '${transaction.date.year}年${transaction.date.month}月${transaction.date.day}日';
 
-      // 只在时间段的第一个交易项前添加分割线
       if (showYearDivider &&
           (lastYear == null || lastYear != transactionYear)) {
         items.add(
@@ -176,14 +164,12 @@ class ItemListWidget extends StatelessWidget {
         lastDay = transactionDay;
       }
 
-      // 添加交易项
       items.add(transaction);
     }
 
     return items;
   }
 
-  // 构建年分割线
   Widget _buildYearDivider(
     BuildContext context,
     DateTime date,
@@ -215,7 +201,6 @@ class ItemListWidget extends StatelessWidget {
     );
   }
 
-  // 构建月分割线
   Widget _buildMonthDivider(
     BuildContext context,
     DateTime date,
@@ -247,7 +232,6 @@ class ItemListWidget extends StatelessWidget {
     );
   }
 
-  // 构建日分割线
   Widget _buildDayDivider(
     BuildContext context,
     DateTime date,

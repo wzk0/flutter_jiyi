@@ -17,7 +17,7 @@ class SearchDialogWidget extends StatefulWidget {
 
 class _SearchDialogWidgetState extends State<SearchDialogWidget> {
   late RangeValues _amountRange;
-  String _radioValue = 'all'; // 'all', 'income', 'expense'
+  String _radioValue = 'all';
   DateTime? _startDate;
   DateTime? _endDate;
   final TextEditingController _keywordController = TextEditingController();
@@ -25,7 +25,6 @@ class _SearchDialogWidgetState extends State<SearchDialogWidget> {
   @override
   void initState() {
     super.initState();
-    // 初始化金额范围为传入的最小最大值
     _amountRange = RangeValues(widget.minAmount, widget.maxAmount);
   }
 
@@ -35,7 +34,6 @@ class _SearchDialogWidgetState extends State<SearchDialogWidget> {
     super.dispose();
   }
 
-  // 选择开始日期
   Future<void> _selectStartDate() async {
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -46,7 +44,6 @@ class _SearchDialogWidgetState extends State<SearchDialogWidget> {
     if (picked != null && mounted) {
       setState(() {
         _startDate = picked;
-        // 确保结束日期不早于开始日期
         if (_endDate != null && _endDate!.isBefore(_startDate!)) {
           _endDate = _startDate;
         }
@@ -54,7 +51,6 @@ class _SearchDialogWidgetState extends State<SearchDialogWidget> {
     }
   }
 
-  // 选择结束日期
   Future<void> _selectEndDate() async {
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -65,7 +61,6 @@ class _SearchDialogWidgetState extends State<SearchDialogWidget> {
     if (picked != null && mounted) {
       setState(() {
         _endDate = picked;
-        // 确保开始日期不晚于结束日期
         if (_startDate != null && _startDate!.isAfter(_endDate!)) {
           _startDate = _endDate;
         }
@@ -73,7 +68,6 @@ class _SearchDialogWidgetState extends State<SearchDialogWidget> {
     }
   }
 
-  // 格式化日期显示
   String _formatDate(DateTime? date) {
     if (date == null) return '未选择';
     return DateFormat('yyyy-MM-dd').format(date);
@@ -88,7 +82,6 @@ class _SearchDialogWidgetState extends State<SearchDialogWidget> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // 关键词输入
             TextField(
               controller: _keywordController,
               decoration: InputDecoration(
@@ -99,7 +92,6 @@ class _SearchDialogWidgetState extends State<SearchDialogWidget> {
             ),
             Divider(height: 30),
 
-            // 金额范围
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -134,7 +126,6 @@ class _SearchDialogWidgetState extends State<SearchDialogWidget> {
             ),
 
             Divider(height: 30),
-            // 类型选择 - 优化样式
             Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
@@ -157,14 +148,12 @@ class _SearchDialogWidgetState extends State<SearchDialogWidget> {
                   },
                   style: const ButtonStyle(
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    //iconSize: WidgetStatePropertyAll(1),
                   ),
                   showSelectedIcon: false,
                 ),
               ],
             ),
             Divider(height: 30),
-            // 日期范围选择
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -216,7 +205,6 @@ class _SearchDialogWidgetState extends State<SearchDialogWidget> {
         TextButton(onPressed: () => Navigator.pop(context), child: Text('取消')),
         FilledButton(
           onPressed: () {
-            // 返回搜索条件
             Navigator.pop(context, {
               'keyword': _keywordController.text,
               'minAmount': _amountRange.start,

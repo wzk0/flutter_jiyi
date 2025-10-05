@@ -8,7 +8,7 @@ import 'package:jiyi/models/transaction.dart';
 import 'package:jiyi/services/database_service.dart';
 import 'package:jiyi/views/home_page/alt_dialogs/alt_dialog_widget.dart';
 import 'package:jiyi/views/home_page/search_dialog_widget.dart';
-import 'package:shared_preferences/shared_preferences.dart'; // 添加这个导入
+import 'package:shared_preferences/shared_preferences.dart';
 
 class WidgetTree extends StatefulWidget {
   const WidgetTree({super.key});
@@ -20,10 +20,9 @@ class WidgetTree extends StatefulWidget {
 class _WidgetTreeState extends State<WidgetTree> {
   List<Transaction> _transactions = [];
   bool _isLoading = true;
-  bool _isSearching = false; // 添加搜索状态
-  List<Transaction> _searchResults = []; // 添加搜索结果
+  bool _isSearching = false;
+  List<Transaction> _searchResults = [];
 
-  // 分割线设置
   bool _showYearDivider = false;
   bool _showMonthDivider = false;
   bool _showDayDivider = false;
@@ -32,10 +31,9 @@ class _WidgetTreeState extends State<WidgetTree> {
   void initState() {
     super.initState();
     _initDatabaseAndLoadData();
-    _loadDividerSettings(); // 加载分割线设置
+    _loadDividerSettings();
   }
 
-  // 加载分割线设置
   Future<void> _loadDividerSettings() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -45,10 +43,9 @@ class _WidgetTreeState extends State<WidgetTree> {
     });
   }
 
-  // 计算交易数据中的最小和最大金额
   (double, double) _calculateMinMaxAmount(List<Transaction> transactions) {
     if (transactions.isEmpty) {
-      return (0.0, 100.0); // 默认范围
+      return (0.0, 100.0);
     }
 
     double minAmount = transactions.first.money;
@@ -63,21 +60,17 @@ class _WidgetTreeState extends State<WidgetTree> {
       }
     }
 
-    // 确保有一个合理的范围
     if (minAmount == maxAmount) {
-      maxAmount = minAmount + 100; // 如果只有一个值，扩展范围
+      maxAmount = minAmount + 100;
     }
 
     return (minAmount, maxAmount);
   }
 
-  // 初始化数据库并加载数据
   Future<void> _initDatabaseAndLoadData() async {
     try {
-      // 确保数据库初始化
       await DatabaseService.instance.database;
 
-      // 加载数据
       await _loadTransactions();
     } catch (e) {
       setState(() {
@@ -87,7 +80,6 @@ class _WidgetTreeState extends State<WidgetTree> {
     }
   }
 
-  // 加载交易数据
   Future<void> _loadTransactions() async {
     setState(() {
       _isLoading = true;
@@ -107,7 +99,6 @@ class _WidgetTreeState extends State<WidgetTree> {
     }
   }
 
-  // 编辑交易
   void _editTransaction(Transaction transaction) {
     showDialog(
       context: context,
@@ -120,12 +111,11 @@ class _WidgetTreeState extends State<WidgetTree> {
     });
   }
 
-  // 更新交易
   Future<void> _updateTransaction(Transaction transaction) async {
     try {
       await DatabaseService.instance.updateTransaction(transaction);
-      await _loadTransactions(); // 重新加载数据
-      await _loadDividerSettings(); // 重新加载设置（如果有更新）
+      await _loadTransactions();
+      await _loadDividerSettings();
       if (mounted) {
         ScaffoldMessenger.of(
           context,
@@ -140,7 +130,6 @@ class _WidgetTreeState extends State<WidgetTree> {
     }
   }
 
-  // 删除交易
   void _deleteTransaction(Transaction transaction) {
     showDialog(
       context: context,
@@ -164,12 +153,11 @@ class _WidgetTreeState extends State<WidgetTree> {
     );
   }
 
-  // 执行删除操作
   Future<void> _performDelete(String id) async {
     try {
       await DatabaseService.instance.deleteTransaction(id);
-      await _loadTransactions(); // 重新加载数据
-      await _loadDividerSettings(); // 重新加载设置（如果有更新）
+      await _loadTransactions();
+      await _loadDividerSettings();
       if (mounted) {
         ScaffoldMessenger.of(
           context,
@@ -184,7 +172,6 @@ class _WidgetTreeState extends State<WidgetTree> {
     }
   }
 
-  // 显示搜索对话框
   void _showSearchDialog() async {
     final (minAmount, maxAmount) = _calculateMinMaxAmount(_transactions);
 
@@ -199,7 +186,6 @@ class _WidgetTreeState extends State<WidgetTree> {
     }
   }
 
-  // 执行搜索
   void _performSearch(Map<String, dynamic> searchCriteria) {
     setState(() {
       _isSearching = true;
@@ -207,7 +193,6 @@ class _WidgetTreeState extends State<WidgetTree> {
     });
   }
 
-  // 过滤交易数据
   List<Transaction> _filterTransactions(
     List<Transaction> transactions,
     Map<String, dynamic> criteria,
@@ -220,18 +205,15 @@ class _WidgetTreeState extends State<WidgetTree> {
     DateTime? endDate = criteria['endDate'] as DateTime?;
 
     return transactions.where((transaction) {
-      // 关键词过滤
       if (keyword.isNotEmpty &&
           !transaction.name.toLowerCase().contains(keyword.toLowerCase())) {
         return false;
       }
 
-      // 金额范围过滤
       if (transaction.money < minAmount || transaction.money > maxAmount) {
         return false;
       }
 
-      // 类型过滤
       if (type == 'income' && transaction.type != TransactionType.income) {
         return false;
       }
@@ -239,7 +221,6 @@ class _WidgetTreeState extends State<WidgetTree> {
         return false;
       }
 
-      // 日期范围过滤
       if (startDate != null && transaction.date.isBefore(startDate)) {
         return false;
       }
@@ -251,7 +232,6 @@ class _WidgetTreeState extends State<WidgetTree> {
     }).toList();
   }
 
-  // 清除搜索
   void _clearSearch() {
     setState(() {
       _isSearching = false;

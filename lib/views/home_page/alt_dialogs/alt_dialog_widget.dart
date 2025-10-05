@@ -20,37 +20,33 @@ class _AltDialogWidgetState extends State<AltDialogWidget> {
   final TextEditingController _dateController = TextEditingController();
   late DateTime _selectedDate;
 
-  // 修正：添加类型状态变量
   late TransactionType _transactionType;
 
-  // 新增：分类列表
   List<String> _categories = [];
 
   @override
   void initState() {
     super.initState();
-    _loadCategories(); // 加载分类
+    _loadCategories();
     if (widget.transaction != null) {
       _nameController.text = widget.transaction!.name;
       _moneyController.text = widget.transaction!.money.toString();
       _selectedDate = widget.transaction!.date;
-      _transactionType = widget.transaction!.type; // 从现有交易获取类型
+      _transactionType = widget.transaction!.type;
     } else {
       _nameController.text = '';
       _moneyController.text = '';
       _selectedDate = DateTime.now();
-      _transactionType = TransactionType.expense; // 默认支出
+      _transactionType = TransactionType.expense;
     }
     _dateController.text = _formatDate(_selectedDate);
   }
 
-  // 新增：加载所有分类
   Future<void> _loadCategories() async {
     try {
       final transactions = await DatabaseService.instance.getTransactions();
       final Set<String> categoriesSet = <String>{};
 
-      // 提取所有分类（name.split('-').first）
       for (var transaction in transactions) {
         if (transaction.name.contains('-')) {
           final category = transaction.name.split('-').first;
@@ -82,12 +78,10 @@ class _AltDialogWidgetState extends State<AltDialogWidget> {
 
   bool iconColor = true;
 
-  // 新增：处理分类点击事件
   void _addCategoryToNameField(String category) {
     setState(() {
       String currentText = _nameController.text;
 
-      // 如果当前文本包含分类，替换分类部分
       if (currentText.contains('-')) {
         final parts = currentText.split('-');
         if (parts.length > 1) {
@@ -96,11 +90,9 @@ class _AltDialogWidgetState extends State<AltDialogWidget> {
           _nameController.text = '$category-';
         }
       } else {
-        // 如果当前文本不包含分类，直接添加分类前缀
         _nameController.text = '$category-$currentText';
       }
 
-      // 将光标移动到文本末尾
       _nameController.selection = TextSelection.fromPosition(
         TextPosition(offset: _nameController.text.length),
       );
@@ -140,7 +132,7 @@ class _AltDialogWidgetState extends State<AltDialogWidget> {
                     label: Text('收入'),
                   ),
                 ],
-                selected: {_transactionType}, // 修正：使用当前选中的类型
+                selected: {_transactionType},
                 onSelectionChanged: (Set<TransactionType> newSelection) {
                   setState(() {
                     _transactionType = newSelection.first;
@@ -173,7 +165,6 @@ class _AltDialogWidgetState extends State<AltDialogWidget> {
             mainAxisAlignment: MainAxisAlignment.start,
             children: [Text('分类')],
           ),
-          // 修改：动态显示所有分类
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
@@ -208,7 +199,7 @@ class _AltDialogWidgetState extends State<AltDialogWidget> {
               ),
               border: OutlineInputBorder(),
             ),
-            onTap: _selectDateTime, // 添加点击事件
+            onTap: _selectDateTime,
           ),
         ],
       ),
@@ -219,9 +210,7 @@ class _AltDialogWidgetState extends State<AltDialogWidget> {
     );
   }
 
-  // 选择日期时间
   void _selectDateTime() async {
-    // 先选择日期
     final DateTime? pickedDate = await showDatePicker(
       context: context,
       initialDate: _selectedDate,
@@ -230,14 +219,12 @@ class _AltDialogWidgetState extends State<AltDialogWidget> {
     );
 
     if (pickedDate != null && mounted) {
-      // 再选择时间
       final TimeOfDay? pickedTime = await showTimePicker(
         context: context,
         initialTime: TimeOfDay.fromDateTime(_selectedDate),
       );
 
       if (pickedTime != null && mounted) {
-        // 更新选中的日期时间
         setState(() {
           _selectedDate = DateTime(
             pickedDate.year,
@@ -253,7 +240,6 @@ class _AltDialogWidgetState extends State<AltDialogWidget> {
   }
 
   void _saveTransaction() {
-    // 移除名称必填检查
     if (_moneyController.text.isEmpty) {
       ScaffoldMessenger.of(
         context,
@@ -266,9 +252,7 @@ class _AltDialogWidgetState extends State<AltDialogWidget> {
 
       Transaction transaction = Transaction(
         id: widget.transaction?.id,
-        name: _nameController.text.isEmpty
-            ? '未命名账目'
-            : _nameController.text, // 修正：名称为空时设为默认值
+        name: _nameController.text.isEmpty ? '未命名账目' : _nameController.text,
         money: money,
         date: _selectedDate,
         type: _transactionType,

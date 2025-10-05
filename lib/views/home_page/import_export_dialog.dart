@@ -1,4 +1,3 @@
-// views/home_page/import_export_dialog.dart
 import 'package:clipboard/clipboard.dart';
 import 'package:flutter/material.dart';
 import 'package:jiyi/services/data_export_service.dart';
@@ -26,7 +25,6 @@ class _ImportExportDialogState extends State<ImportExportDialog> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 导出部分
             Text('导出数据'),
             const SizedBox(height: 8),
             Text(
@@ -89,7 +87,6 @@ class _ImportExportDialogState extends State<ImportExportDialog> {
 
             const Divider(height: 30),
 
-            // 导入部分
             Text('导入数据'),
             const SizedBox(height: 8),
             Text(
@@ -155,7 +152,6 @@ class _ImportExportDialogState extends State<ImportExportDialog> {
     );
   }
 
-  // 导出数据
   Future<void> _exportDataFunc() async {
     setState(() {
       _isExporting = true;
@@ -189,7 +185,6 @@ class _ImportExportDialogState extends State<ImportExportDialog> {
     }
   }
 
-  // 导入数据
   Future<void> _importDataFunc() async {
     setState(() {
       _isImporting = true;
@@ -222,7 +217,6 @@ class _ImportExportDialogState extends State<ImportExportDialog> {
     }
   }
 
-  // 复制到剪贴板
   void _copyToClipboard() {
     FlutterClipboard.copy(_exportData).then((value) {
       if (mounted) {

@@ -1,9 +1,7 @@
-// lib/views/settings_page/settings_page.dart
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:jiyi/services/ai_service.dart';
-// 导入AI分析服务
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -13,7 +11,6 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  // 主题颜色选项
   final List<Map<String, dynamic>> _themeColors = [
     {'color': Colors.orange, 'value': 0xFFFFA500, 'name': '橙色'},
     {'color': Colors.blue, 'value': 0xFF2196F3, 'name': '蓝色'},
@@ -25,33 +22,28 @@ class _SettingsPageState extends State<SettingsPage> {
 
   MaterialColor? _currentThemeColor;
 
-  // 设置选项
   bool _showYearDivider = false;
   bool _showMonthDivider = false;
   bool _showDayDivider = false;
-  bool _isIconEnabled = false; // 图标开关
+  bool _isIconEnabled = false;
   bool _habit = false;
   bool _moneyposition = false;
-  bool _settingsLoaded = false; // 标记设置是否已加载
+  bool _settingsLoaded = false;
 
-  // 添加用于 API Key 输入的控制器
   final TextEditingController _apiKeyController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _loadSettings();
-    _loadApiKey(); // 加载 API Key
+    _loadApiKey();
   }
 
-  // 加载所有设置
   Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
 
-    // 加载主题颜色
     final colorValue = prefs.getInt('theme_color') ?? 0xFFFFA500;
 
-    // 加载分割线设置
     final showYearDivider = prefs.getBool('show_year_divider') ?? false;
     final showMonthDivider = prefs.getBool('show_month_divider') ?? false;
     final showDayDivider = prefs.getBool('show_day_divider') ?? false;
@@ -71,7 +63,6 @@ class _SettingsPageState extends State<SettingsPage> {
     });
   }
 
-  // 加载 API Key
   Future<void> _loadApiKey() async {
     final apiKey = await AIAnalysisService.instance.getApiKey();
     if (apiKey != null) {
@@ -79,21 +70,18 @@ class _SettingsPageState extends State<SettingsPage> {
     }
   }
 
-  // 保存主题颜色
   Future<void> _saveThemeColor(int colorValue) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('theme_color', colorValue);
     setState(() {});
   }
 
-  // 保存分割线设置
   Future<void> _saveDividerSetting(String key, bool value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(key, value);
     setState(() {});
   }
 
-  // 保存图标设置
   Future<void> _saveIconSetting(bool value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('is_icon', value);
@@ -112,7 +100,6 @@ class _SettingsPageState extends State<SettingsPage> {
     setState(() {});
   }
 
-  // 根据颜色值获取MaterialColor
   MaterialColor _getColorFromValue(int value) {
     for (var colorEntry in _themeColors) {
       if (colorEntry['value'] == value) {
@@ -125,7 +112,6 @@ class _SettingsPageState extends State<SettingsPage> {
   Future<void> _launchInBrowser(String url) async {
     final Uri uri = Uri.parse(url);
     try {
-      // 强制使用外部应用（系统浏览器）打开
       if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
         throw Exception('Could not launch $url');
       }
@@ -134,7 +120,6 @@ class _SettingsPageState extends State<SettingsPage> {
     }
   }
 
-  // 保存 API Key
   Future<void> _saveApiKey() async {
     final apiKey = _apiKeyController.text.trim();
     if (apiKey.isNotEmpty) {
@@ -217,9 +202,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         style: TextStyle(fontSize: 12),
                       ),
                       activeThumbColor: Theme.of(context).colorScheme.primary,
-                      value: _settingsLoaded
-                          ? _showYearDivider
-                          : false, // 使用加载状态
+                      value: _settingsLoaded ? _showYearDivider : false,
                       onChanged: (value) {
                         setState(() {
                           _showYearDivider = value;
@@ -234,9 +217,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         style: TextStyle(fontSize: 12),
                       ),
                       activeThumbColor: Theme.of(context).colorScheme.primary,
-                      value: _settingsLoaded
-                          ? _showMonthDivider
-                          : false, // 使用加载状态
+                      value: _settingsLoaded ? _showMonthDivider : false,
                       onChanged: (value) {
                         setState(() {
                           _showMonthDivider = value;
@@ -251,9 +232,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         style: TextStyle(fontSize: 12),
                       ),
                       activeThumbColor: Theme.of(context).colorScheme.primary,
-                      value: _settingsLoaded
-                          ? _showDayDivider
-                          : false, // 使用加载状态
+                      value: _settingsLoaded ? _showDayDivider : false,
                       onChanged: (value) {
                         setState(() {
                           _showDayDivider = value;
@@ -281,12 +260,12 @@ class _SettingsPageState extends State<SettingsPage> {
                   color: Theme.of(context).colorScheme.surfaceContainer,
                 ),
                 child: SwitchListTile(
-                  value: _settingsLoaded ? _isIconEnabled : false, // 使用加载状态
+                  value: _settingsLoaded ? _isIconEnabled : false,
                   onChanged: (value) {
                     setState(() {
                       _isIconEnabled = value;
                     });
-                    _saveIconSetting(value); // 保存图标设置
+                    _saveIconSetting(value);
                   },
                   title: Text('卡片图标LOGO'),
                   subtitle: Text(
@@ -313,12 +292,12 @@ class _SettingsPageState extends State<SettingsPage> {
                   color: Theme.of(context).colorScheme.surfaceContainer,
                 ),
                 child: SwitchListTile(
-                  value: _settingsLoaded ? _habit : false, // 使用加载状态
+                  value: _settingsLoaded ? _habit : false,
                   onChanged: (value) {
                     setState(() {
                       _habit = value;
                     });
-                    _saveHabitSetting(value); // 保存图标设置
+                    _saveHabitSetting(value);
                   },
                   title: Text('双击删除账目'),
                   subtitle: Text(
@@ -345,12 +324,12 @@ class _SettingsPageState extends State<SettingsPage> {
                   color: Theme.of(context).colorScheme.surfaceContainer,
                 ),
                 child: SwitchListTile(
-                  value: _settingsLoaded ? _moneyposition : false, // 使用加载状态
+                  value: _settingsLoaded ? _moneyposition : false,
                   onChanged: (value) {
                     setState(() {
                       _moneyposition = value;
                     });
-                    _saveMoneyPositionSetting(value); // 保存图标设置
+                    _saveMoneyPositionSetting(value);
                   },
                   title: Text('卡片金额位置'),
                   subtitle: Text(
@@ -361,7 +340,6 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
               ),
               Divider(height: 40),
-              // --- 新增：AI 分析设置 ---
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Text(
@@ -573,7 +551,6 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  // 构建颜色选项列表
   List<Widget> _buildColorOptions() {
     if (_currentThemeColor == null) {
       return [
@@ -602,13 +579,11 @@ class _SettingsPageState extends State<SettingsPage> {
     }).toList();
   }
 
-  // 更改主题颜色
   void _changeThemeColor(MaterialColor newColor, int colorValue) {
     setState(() {
       _currentThemeColor = newColor;
     });
 
-    // 保存到本地
     _saveThemeColor(colorValue);
 
     if (mounted) {
@@ -621,7 +596,6 @@ class _SettingsPageState extends State<SettingsPage> {
     }
   }
 
-  // 获取颜色名称
   String _getColorName(MaterialColor color) {
     for (var colorEntry in _themeColors) {
       if (colorEntry['color'] == color) {

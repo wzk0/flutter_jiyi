@@ -6,7 +6,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // 简单初始化，适用于移动端
   await DatabaseService.instance.database;
 
   runApp(const MyApp());
@@ -29,18 +28,16 @@ class _MyAppState extends State<MyApp> {
     _loadSavedTheme();
   }
 
-  // 加载保存的主题颜色
   Future<void> _loadSavedTheme() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final colorValue = prefs.getInt('theme_color') ?? 0xFFFFA500; // 橙色的ARGB值
+      final colorValue = prefs.getInt('theme_color') ?? 0xFFFFA500;
 
       setState(() {
         _primaryColor = _getColorFromValue(colorValue);
         _isLoading = false;
       });
     } catch (e) {
-      // 如果加载失败，使用默认颜色
       setState(() {
         _primaryColor = Colors.orange;
         _isLoading = false;
@@ -48,7 +45,6 @@ class _MyAppState extends State<MyApp> {
     }
   }
 
-  // 根据颜色值获取MaterialColor
   MaterialColor _getColorFromValue(int value) {
     final List<Map<String, dynamic>> colorMap = [
       {'color': Colors.orange, 'value': 0xFFFFA500},
@@ -64,7 +60,7 @@ class _MyAppState extends State<MyApp> {
         return colorEntry['color'];
       }
     }
-    return Colors.orange; // 默认返回橙色
+    return Colors.orange;
   }
 
   @override

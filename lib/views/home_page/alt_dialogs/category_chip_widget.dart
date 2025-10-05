@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class CategoryChipWidget extends StatefulWidget {
   final String title;
-  final VoidCallback? onTap; // 添加点击回调
+  final VoidCallback? onTap;
 
   const CategoryChipWidget({super.key, required this.title, this.onTap});
 
@@ -14,7 +14,7 @@ class _CategoryChipWidgetState extends State<CategoryChipWidget> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: widget.onTap, // 添加点击事件
+      onTap: widget.onTap,
       child: Container(
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.primaryContainer,

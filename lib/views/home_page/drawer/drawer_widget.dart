@@ -1,4 +1,3 @@
-// lib/views/home_page/drawer/drawer_widget.dart
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:jiyi/services/update_service.dart';
@@ -12,7 +11,7 @@ import 'package:jiyi/models/transaction.dart';
 import 'package:jiyi/services/database_service.dart';
 import 'package:jiyi/views/home_page/import_export_dialog.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:jiyi/services/ai_service.dart'; // 导入AI分析服务
+import 'package:jiyi/services/ai_service.dart';
 
 class DrawerWidget extends StatefulWidget {
   const DrawerWidget({super.key});
@@ -26,8 +25,8 @@ class _DrawerWidgetState extends State<DrawerWidget> {
   double _todayExpense = 0.0;
   double _totalIncome = 0.0;
   double _totalExpense = 0.0;
-  int _incomeCount = 0; // 收入笔数
-  int _expenseCount = 0; // 支出笔数
+  int _incomeCount = 0;
+  int _expenseCount = 0;
   Transaction? _highestIncome;
   Transaction? _highestExpense;
 
@@ -37,12 +36,10 @@ class _DrawerWidgetState extends State<DrawerWidget> {
     _loadStatistics();
   }
 
-  // 加载统计数据
   Future<void> _loadStatistics() async {
     try {
       final transactions = await DatabaseService.instance.getTransactions();
 
-      // 计算今日数据
       final today = DateTime.now();
       final todayStart = DateTime(today.year, today.month, today.day);
       final todayEnd = DateTime(today.year, today.month, today.day, 23, 59, 59);
@@ -50,7 +47,6 @@ class _DrawerWidgetState extends State<DrawerWidget> {
       double todayIncome = 0.0;
       double todayExpense = 0.0;
 
-      // 计算总数据
       double totalIncome = 0.0;
       double totalExpense = 0.0;
       int incomeCount = 0;
@@ -60,7 +56,6 @@ class _DrawerWidgetState extends State<DrawerWidget> {
       Transaction? highestExpenseTransaction;
 
       for (var transaction in transactions) {
-        // 今日统计
         if (transaction.date.isAfter(todayStart) &&
             transaction.date.isBefore(todayEnd)) {
           if (transaction.type == TransactionType.income) {
@@ -70,7 +65,6 @@ class _DrawerWidgetState extends State<DrawerWidget> {
           }
         }
 
-        // 总统计
         if (transaction.type == TransactionType.income) {
           totalIncome += transaction.money;
           incomeCount++;
@@ -105,9 +99,8 @@ class _DrawerWidgetState extends State<DrawerWidget> {
     }
   }
 
-  // 添加加载交易数据的方法（用于刷新）
   Future<void> _loadTransactions() async {
-    await _loadStatistics(); // 重新加载统计数据
+    await _loadStatistics();
   }
 
   @override
@@ -266,17 +259,16 @@ class _DrawerWidgetState extends State<DrawerWidget> {
                 ),
                 const Divider(),
                 DrawerTitleWidget(actions: '操作'),
-                // 统一使用FilledButton.tonalIcon样式
                 Wrap(
                   spacing: 5,
                   children: [
                     FilledButton.tonalIcon(
-                      onPressed: _performAIAnalysis, // 调用 AI 分析方法
+                      onPressed: _performAIAnalysis,
                       icon: Icon(Icons.lightbulb),
                       label: Text('智能分析'),
                     ),
                     FilledButton.tonalIcon(
-                      onPressed: _showImportExportDialog, // 数据导入导出功能
+                      onPressed: _showImportExportDialog,
                       icon: Icon(Icons.swap_horiz),
                       label: Text('数据管理'),
                     ),
@@ -295,9 +287,7 @@ class _DrawerWidgetState extends State<DrawerWidget> {
     );
   }
 
-  // 执行 AI 分析
   Future<void> _performAIAnalysis() async {
-    // 检查是否已配置 API Key
     final hasKey = await AIAnalysisService.instance.hasApiKey();
     if (!hasKey) {
       if (mounted) {
@@ -308,7 +298,6 @@ class _DrawerWidgetState extends State<DrawerWidget> {
       return;
     }
 
-    // 显示加载提示
     if (mounted) {
       showDialog(
         context: context,
@@ -327,16 +316,13 @@ class _DrawerWidgetState extends State<DrawerWidget> {
     }
 
     try {
-      // 调用服务生成分析
       final analysisResult = await AIAnalysisService.instance
           .generateAnalysis();
 
-      // 关闭加载提示
       if (mounted) {
-        Navigator.of(context).pop(); // 关闭加载对话框
+        Navigator.of(context).pop();
       }
 
-      // 显示分析结果（可以是新页面或对话框）
       if (mounted) {
         Navigator.push(
           context,
@@ -348,9 +334,8 @@ class _DrawerWidgetState extends State<DrawerWidget> {
         );
       }
     } catch (e) {
-      // 关闭加载提示（如果还在）
       if (mounted) {
-        Navigator.of(context).maybePop(); // 安全地尝试关闭加载对话框
+        Navigator.of(context).maybePop();
       }
       debugPrint('AI 分析失败: $e');
       if (mounted) {
@@ -361,14 +346,12 @@ class _DrawerWidgetState extends State<DrawerWidget> {
     }
   }
 
-  // 显示导入导出对话框
   void _showImportExportDialog() async {
     final result = await showDialog<bool>(
       context: context,
       builder: (context) => const ImportExportDialog(),
     );
 
-    // 如果导入成功，需要刷新数据
     if (result == true) {
       await _loadTransactions();
     }
@@ -382,9 +365,7 @@ class _DrawerWidgetState extends State<DrawerWidget> {
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
 
     try {
-      final updateInfo = await UpdateService.instance.checkForUpdates(
-        '0.0.33',
-      ); // 当前版本
+      final updateInfo = await UpdateService.instance.checkForUpdates('0.0.33');
 
       if (updateInfo != null && updateInfo.isAvailable) {
         _showUpdateDialog(updateInfo);
@@ -443,7 +424,6 @@ class _DrawerWidgetState extends State<DrawerWidget> {
     );
   }
 
-  // 打开下载链接
   void _launchUrl(String url) async {
     final Uri uri = Uri.parse(url);
     try {

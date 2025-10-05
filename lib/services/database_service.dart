@@ -1,4 +1,3 @@
-// services/database_service.dart
 import 'package:sqflite/sqflite.dart' hide Transaction;
 import '../models/transaction.dart';
 import 'package:path/path.dart';
@@ -34,13 +33,11 @@ class DatabaseService {
     ''');
   }
 
-  // 插入交易记录
   Future<void> insertTransaction(Transaction transaction) async {
     final db = await instance.database;
     await db.insert('transactions', transaction.toMap());
   }
 
-  // 获取所有交易记录
   Future<List<Transaction>> getTransactions() async {
     final db = await instance.database;
     final maps = await db.query('transactions', orderBy: 'date DESC');
@@ -49,7 +46,6 @@ class DatabaseService {
     });
   }
 
-  // 更新交易记录
   Future<void> updateTransaction(Transaction transaction) async {
     final db = await instance.database;
     await db.update(
@@ -60,13 +56,11 @@ class DatabaseService {
     );
   }
 
-  // 删除交易记录
   Future<void> deleteTransaction(String id) async {
     final db = await instance.database;
     await db.delete('transactions', where: 'id = ?', whereArgs: [id]);
   }
 
-  // 根据ID获取单个交易记录
   Future<Transaction?> getTransactionById(String id) async {
     final db = await instance.database;
     final maps = await db.query(

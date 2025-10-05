@@ -16,24 +16,20 @@ class _CalculatorWidgetState extends State<CalculatorWidget> {
   void _onButtonPressed(String buttonText) {
     setState(() {
       if (buttonText == 'AC') {
-        // 清除所有
         _input = '0';
         _expression = '';
         _result = 0;
         _isNewInput = true;
       } else if (buttonText == 'C') {
-        // 清除当前输入
         _input = '0';
         _isNewInput = true;
       } else if (buttonText == '⌫') {
-        // 退格
         if (_input.length > 1) {
           _input = _input.substring(0, _input.length - 1);
         } else {
           _input = '0';
         }
       } else if (buttonText == '=') {
-        // 计算结果
         try {
           if (_expression.isNotEmpty) {
             String fullExpression = _expression + _input;
@@ -48,19 +44,15 @@ class _CalculatorWidgetState extends State<CalculatorWidget> {
           _isNewInput = true;
         }
       } else if (['+', '-', '×', '÷'].contains(buttonText)) {
-        // 运算符
         try {
           if (_expression.isNotEmpty && !_isNewInput) {
-            // 连续运算符处理
             String fullExpression = _expression + _input;
             _result = _evaluateExpression(fullExpression);
             _input = _formatResult(_result);
             _expression = _input + _mapOperator(buttonText);
           } else if (_expression.isEmpty) {
-            // 第一次输入运算符
             _expression = _input + _mapOperator(buttonText);
           } else {
-            // 继续添加运算符
             _expression += _input + _mapOperator(buttonText);
           }
           _isNewInput = true;
@@ -70,7 +62,6 @@ class _CalculatorWidgetState extends State<CalculatorWidget> {
           _isNewInput = true;
         }
       } else if (buttonText == '.') {
-        // 小数点
         if (_isNewInput) {
           _input = '0.';
           _isNewInput = false;
@@ -78,7 +69,6 @@ class _CalculatorWidgetState extends State<CalculatorWidget> {
           _input += '.';
         }
       } else if (buttonText == '±') {
-        // 正负号
         if (_input != '0') {
           if (_input.startsWith('-')) {
             _input = _input.substring(1);
@@ -87,7 +77,6 @@ class _CalculatorWidgetState extends State<CalculatorWidget> {
           }
         }
       } else {
-        // 数字
         if (_isNewInput) {
           _input = buttonText;
           _isNewInput = false;
@@ -115,28 +104,22 @@ class _CalculatorWidgetState extends State<CalculatorWidget> {
 
   double _evaluateExpression(String expression) {
     try {
-      // 简单的表达式计算
       return _calculate(expression);
     } catch (e) {
       throw Exception('计算错误');
     }
   }
 
-  // 简单的表达式计算器 - 修复版本
   double _calculate(String expression) {
-    // 移除空格
     expression = expression.replaceAll(' ', '');
 
-    // 检查表达式是否以运算符结尾
     if (expression.endsWith('+') ||
         expression.endsWith('-') ||
         expression.endsWith('*') ||
         expression.endsWith('/')) {
-      // 移除末尾的运算符
       expression = expression.substring(0, expression.length - 1);
     }
 
-    // 如果表达式为空或只有运算符，返回0
     if (expression.isEmpty ||
         expression == '+' ||
         expression == '-' ||
@@ -145,11 +128,9 @@ class _CalculatorWidgetState extends State<CalculatorWidget> {
       return 0;
     }
 
-    // 使用两个列表分别存储数字和操作符
     List<double> numbers = [];
     List<String> operators = [];
 
-    // 解析表达式
     String currentNumber = '';
     for (int i = 0; i < expression.length; i++) {
       String char = expression[i];
@@ -158,7 +139,6 @@ class _CalculatorWidgetState extends State<CalculatorWidget> {
           if (char == '-') {
             currentNumber = '-';
           } else {
-            // 连续运算符，跳过
             continue;
           }
         } else {
@@ -171,17 +151,14 @@ class _CalculatorWidgetState extends State<CalculatorWidget> {
       }
     }
 
-    // 添加最后一个数字
     if (currentNumber.isNotEmpty) {
       numbers.add(double.parse(currentNumber));
     }
 
-    // 如果没有数字，返回0
     if (numbers.isEmpty) {
       return 0;
     }
 
-    // 先计算乘除
     for (int i = 0; i < operators.length; i++) {
       if (operators[i] == '*' || operators[i] == '/') {
         if (i + 1 < numbers.length) {
@@ -202,7 +179,6 @@ class _CalculatorWidgetState extends State<CalculatorWidget> {
       }
     }
 
-    // 再计算加减
     double result = numbers[0];
     for (int i = 0; i < operators.length; i++) {
       if (i + 1 < numbers.length) {
@@ -221,7 +197,6 @@ class _CalculatorWidgetState extends State<CalculatorWidget> {
     if (value == value.toInt()) {
       return value.toInt().toString();
     } else {
-      // 保留合适的小数位数
       String str = value.toString();
       if (str.length > 10) {
         return value.toStringAsFixed(8);
@@ -236,7 +211,6 @@ class _CalculatorWidgetState extends State<CalculatorWidget> {
       appBar: AppBar(),
       body: Column(
         children: [
-          // 显示区域
           Expanded(
             child: Container(
               padding: const EdgeInsets.all(20),
@@ -245,7 +219,6 @@ class _CalculatorWidgetState extends State<CalculatorWidget> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  // 表达式显示
                   if (_expression.isNotEmpty)
                     Text(
                       _expression,
@@ -254,7 +227,6 @@ class _CalculatorWidgetState extends State<CalculatorWidget> {
                       ),
                     ),
                   const SizedBox(height: 8),
-                  // 当前输入显示
                   Text(
                     _input,
                     style: Theme.of(context).textTheme.displayLarge?.copyWith(
@@ -268,13 +240,11 @@ class _CalculatorWidgetState extends State<CalculatorWidget> {
               ),
             ),
           ),
-          // 按钮区域
           Container(
             padding: const EdgeInsets.all(16),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // 第一行按钮
                 _buildButtonRow([
                   CalculatorButton(
                     text: 'AC',
@@ -297,7 +267,6 @@ class _CalculatorWidgetState extends State<CalculatorWidget> {
                     onPressed: () => _onButtonPressed('÷'),
                   ),
                 ]),
-                // 数字按钮行
                 _buildButtonRow([
                   CalculatorButton(
                     text: '7',

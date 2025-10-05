@@ -1,4 +1,3 @@
-// lib/views/analytics_page/analytics_page.dart
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:jiyi/models/transaction.dart';
@@ -14,7 +13,7 @@ class AnalyticsPage extends StatefulWidget {
 class _AnalyticsPageState extends State<AnalyticsPage> {
   List<Transaction> _transactions = [];
   bool _isLoading = true;
-  AnalysisPeriod _currentPeriod = AnalysisPeriod.weekly; // 默认周度分析
+  AnalysisPeriod _currentPeriod = AnalysisPeriod.weekly;
 
   @override
   void initState() {
@@ -51,7 +50,6 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
       appBar: AppBar(
         title: Text('数据分析'),
         actions: [
-          // 刷新按钮
           IconButton(onPressed: _loadTransactions, icon: Icon(Icons.refresh)),
         ],
       ),
@@ -59,16 +57,13 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
           ? const Center(child: CircularProgressIndicator())
           : Column(
               children: [
-                // 时间段选择器
                 _buildPeriodSelector(),
-                // 分析内容
                 Expanded(child: _buildAnalysisContent()),
               ],
             ),
     );
   }
 
-  // 构建时间段选择器
   Widget _buildPeriodSelector() {
     return SegmentedButton<AnalysisPeriod>(
       segments: const [
@@ -85,9 +80,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
     );
   }
 
-  // 构建分析内容
   Widget _buildAnalysisContent() {
-    // 根据选择的时间段过滤数据
     final filteredTransactions = _filterTransactionsByPeriod(_currentPeriod);
 
     if (filteredTransactions.isEmpty) {
@@ -99,7 +92,6 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
       );
     }
 
-    // 计算统计数据
     final stats = _calculateStatistics(filteredTransactions);
 
     return SingleChildScrollView(
@@ -108,42 +100,26 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
         spacing: 5,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 概览卡片
           _buildOverviewCard(stats),
-          //const SizedBox(height: 10),
 
-          // 最高收入支出展示
           _buildHighestTransactionsCard(filteredTransactions),
-          //const SizedBox(height: 10),
 
-          // 收支对比图表
           _buildIncomeExpenseChart(stats),
-          //const SizedBox(height: 20),
 
-          // 收入趋势条形图
           _buildIncomeTrendChart(filteredTransactions),
-          //const SizedBox(height: 20),
 
-          // 消费趋势条形图
           _buildExpenseTrendChart(filteredTransactions),
-          //const SizedBox(height: 20),
 
-          // 分类收入饼图
           _buildCategoryIncomeChart(filteredTransactions),
-          //const SizedBox(height: 20),
 
-          // 分类支出饼图
           _buildCategoryExpenseChart(filteredTransactions),
-          //const SizedBox(height: 20),
 
-          // 详细统计
           _buildDetailedStats(stats),
         ],
       ),
     );
   }
 
-  // 获取分类名称
   String _getCategoryName(String name) {
     if (name.contains('-')) {
       return name.split('-')[0];
@@ -151,7 +127,6 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
     return name;
   }
 
-  // 构建分类收入饼图
   Widget _buildCategoryIncomeChart(List<Transaction> transactions) {
     final categoryData = _calculateCategoryIncome(transactions);
 
@@ -176,24 +151,22 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                         (data) => PieChartSectionData(
                           value: data.amount,
                           title:
-                              '${data.category}\n${data.percentage.toStringAsFixed(1)}%', // 显示百分比
+                              '${data.category}\n${data.percentage.toStringAsFixed(1)}%',
                           titleStyle: TextStyle(
                             color: Theme.of(context).colorScheme.onPrimary,
                             fontSize: 10,
-                            fontWeight: FontWeight.bold, // 加粗标题更清晰
+                            fontWeight: FontWeight.bold,
                           ),
                           color: data.color,
                           showTitle: true,
                         ),
                       )
                       .toList(),
-                  centerSpaceRadius: 60, // 中心圆环
-                  // 移除触摸交互配置，只保留基本图表
+                  centerSpaceRadius: 60,
                 ),
               ),
             ),
             const SizedBox(height: 16),
-            // 分类图例
             Wrap(
               spacing: 8,
               runSpacing: 4,
@@ -225,13 +198,11 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
     );
   }
 
-  // 计算分类收入
   List<CategoryIncomeData> _calculateCategoryIncome(
     List<Transaction> transactions,
   ) {
     final incomeMap = <String, double>{};
 
-    // 统计各分类收入
     for (var transaction in transactions) {
       if (transaction.type == TransactionType.income) {
         final category = _getCategoryName(transaction.name);
@@ -239,12 +210,10 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
       }
     }
 
-    // 如果没有收入数据，返回空列表
     if (incomeMap.isEmpty) {
       return [];
     }
 
-    // 计算总收入
     final totalIncome = incomeMap.values.fold(
       0.0,
       (sum, amount) => sum + amount,
@@ -277,7 +246,6 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
     return result;
   }
 
-  // 构建消费趋势条形图
   Widget _buildExpenseTrendChart(List<Transaction> transactions) {
     final trendData = _calculateExpenseTrend(transactions);
     final maxValue = trendData.isNotEmpty
@@ -305,7 +273,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                   child: BarChart(
                     BarChartData(
                       alignment: BarChartAlignment.spaceAround,
-                      maxY: maxValue * 1.8, // 给顶部留些空间 (同步修改)
+                      maxY: maxValue * 1.8,
                       barGroups: trendData.asMap().entries.map((entry) {
                         final index = entry.key;
                         final value = entry.value;
@@ -314,19 +282,14 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                           barRods: [
                             BarChartRodData(
                               toY: value,
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.primary, // 支出颜色
+                              color: Theme.of(context).colorScheme.primary,
                               width: 15,
-                              borderRadius: BorderRadius.circular(
-                                20,
-                              ), // 同步修改：添加圆角
+                              borderRadius: BorderRadius.circular(20),
                             ),
                           ],
                         );
                       }).toList(),
                       barTouchData: BarTouchData(
-                        // 同步修改：添加触摸提示
                         enabled: true,
                         touchTooltipData: BarTouchTooltipData(
                           tooltipBorderRadius: BorderRadius.circular(15),
@@ -334,7 +297,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                           getTooltipColor: (group) {
                             return Theme.of(
                               context,
-                            ).colorScheme.primaryContainer; // 使用支出对应的主题色
+                            ).colorScheme.primaryContainer;
                           },
                           getTooltipItem: (group, groupIndex, rod, rodIndex) {
                             final label = _getTrendLabel(group.x);
@@ -342,9 +305,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                             return BarTooltipItem(
                               '$label\n¥ ${value.toStringAsFixed(2)}',
                               TextStyle(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.primary, // 提示文字颜色
+                                color: Theme.of(context).colorScheme.primary,
                                 fontSize: 12,
                               ),
                             );
@@ -376,9 +337,8 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                           sideTitles: SideTitles(
                             showTitles: true,
                             reservedSize: 40,
-                            interval: maxValue > 0 ? maxValue / 5 : 1, // 设置间隔
+                            interval: maxValue > 0 ? maxValue / 5 : 1,
                             getTitlesWidget: (value, meta) {
-                              // 格式化纵轴数值
                               if (value == 0) return const Text('');
                               return Text(
                                 '${value.toInt()}',
@@ -391,9 +351,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                           ),
                         ),
                         topTitles: AxisTitles(
-                          sideTitles: SideTitles(
-                            showTitles: false,
-                          ), // 移除顶部轴 (同步修改)
+                          sideTitles: SideTitles(showTitles: false),
                         ),
                         rightTitles: AxisTitles(
                           sideTitles: SideTitles(showTitles: false),
@@ -406,7 +364,6 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                         drawVerticalLine: false,
                         horizontalInterval: maxValue > 0 ? maxValue / 5 : 1,
                       ),
-                      // 移除触摸交互配置，只保留基本图表
                     ),
                   ),
                 ),
@@ -418,7 +375,6 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
     );
   }
 
-  // 构建收入趋势条形图
   Widget _buildIncomeTrendChart(List<Transaction> transactions) {
     final trendData = _calculateIncomeTrend(transactions);
     final maxValue = trendData.isNotEmpty
@@ -446,7 +402,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                   child: BarChart(
                     BarChartData(
                       alignment: BarChartAlignment.spaceAround,
-                      maxY: maxValue * 1.8, // 给顶部留些空间
+                      maxY: maxValue * 1.8,
                       barGroups: trendData.asMap().entries.map((entry) {
                         final index = entry.key;
                         final value = entry.value;
@@ -455,19 +411,14 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                           barRods: [
                             BarChartRodData(
                               toY: value,
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.tertiary, // 收入颜色
+                              color: Theme.of(context).colorScheme.tertiary,
                               width: 15,
-                              borderRadius: BorderRadius.circular(
-                                20,
-                              ), // 同步修改：添加圆角
+                              borderRadius: BorderRadius.circular(20),
                             ),
                           ],
                         );
                       }).toList(),
                       barTouchData: BarTouchData(
-                        // 同步修改：添加触摸提示
                         enabled: true,
                         touchTooltipData: BarTouchTooltipData(
                           tooltipBorderRadius: BorderRadius.circular(15),
@@ -475,7 +426,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                           getTooltipColor: (group) {
                             return Theme.of(
                               context,
-                            ).colorScheme.tertiaryContainer; // 使用收入对应的主题色
+                            ).colorScheme.tertiaryContainer;
                           },
                           getTooltipItem: (group, groupIndex, rod, rodIndex) {
                             final label = _getTrendLabel(group.x);
@@ -483,9 +434,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                             return BarTooltipItem(
                               '$label\n¥ ${value.toStringAsFixed(2)}',
                               TextStyle(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.tertiary, // 提示文字颜色
+                                color: Theme.of(context).colorScheme.tertiary,
                                 fontSize: 12,
                               ),
                             );
@@ -517,9 +466,8 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                           sideTitles: SideTitles(
                             showTitles: true,
                             reservedSize: 40,
-                            interval: maxValue > 0 ? maxValue / 5 : 1, // 设置间隔
+                            interval: maxValue > 0 ? maxValue / 5 : 1,
                             getTitlesWidget: (value, meta) {
-                              // 格式化纵轴数值
                               if (value == 0) return const Text('');
                               return Text(
                                 '${value.toInt()}',
@@ -532,7 +480,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                           ),
                         ),
                         topTitles: AxisTitles(
-                          sideTitles: SideTitles(showTitles: false), // 移除顶部轴
+                          sideTitles: SideTitles(showTitles: false),
                         ),
                         rightTitles: AxisTitles(
                           sideTitles: SideTitles(showTitles: false),
@@ -545,7 +493,6 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                         drawVerticalLine: false,
                         horizontalInterval: maxValue > 0 ? maxValue / 5 : 1,
                       ),
-                      // 移除触摸交互配置，只保留基本图表
                     ),
                   ),
                 ),
@@ -557,15 +504,13 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
     );
   }
 
-  // 计算支出趋势数据
   List<double> _calculateExpenseTrend(List<Transaction> transactions) {
     switch (_currentPeriod) {
       case AnalysisPeriod.weekly:
-        // 一周7天
         final dailyExpenses = List<double>.filled(7, 0);
         for (var transaction in transactions) {
           if (transaction.type == TransactionType.expense) {
-            final dayOfWeek = transaction.date.weekday - 1; // 0-6 (周一到周日)
+            final dayOfWeek = transaction.date.weekday - 1;
             if (dayOfWeek >= 0 && dayOfWeek < 7) {
               dailyExpenses[dayOfWeek] += transaction.money;
             }
@@ -574,7 +519,6 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
         return dailyExpenses;
 
       case AnalysisPeriod.monthly:
-        // 4周
         final weeklyExpenses = List<double>.filled(4, 0);
         for (var transaction in transactions) {
           if (transaction.type == TransactionType.expense) {
@@ -586,11 +530,10 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
         return weeklyExpenses;
 
       case AnalysisPeriod.yearly:
-        // 12个月
         final monthlyExpenses = List<double>.filled(12, 0);
         for (var transaction in transactions) {
           if (transaction.type == TransactionType.expense) {
-            final monthIndex = transaction.date.month - 1; // 0-11
+            final monthIndex = transaction.date.month - 1;
             if (monthIndex >= 0 && monthIndex < 12) {
               monthlyExpenses[monthIndex] += transaction.money;
             }
@@ -600,15 +543,13 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
     }
   }
 
-  // 计算收入趋势数据
   List<double> _calculateIncomeTrend(List<Transaction> transactions) {
     switch (_currentPeriod) {
       case AnalysisPeriod.weekly:
-        // 一周7天
         final dailyIncomes = List<double>.filled(7, 0);
         for (var transaction in transactions) {
           if (transaction.type == TransactionType.income) {
-            final dayOfWeek = transaction.date.weekday - 1; // 0-6 (周一到周日)
+            final dayOfWeek = transaction.date.weekday - 1;
             if (dayOfWeek >= 0 && dayOfWeek < 7) {
               dailyIncomes[dayOfWeek] += transaction.money;
             }
@@ -617,7 +558,6 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
         return dailyIncomes;
 
       case AnalysisPeriod.monthly:
-        // 4周
         final weeklyIncomes = List<double>.filled(4, 0);
         for (var transaction in transactions) {
           if (transaction.type == TransactionType.income) {
@@ -629,11 +569,10 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
         return weeklyIncomes;
 
       case AnalysisPeriod.yearly:
-        // 12个月
         final monthlyIncomes = List<double>.filled(12, 0);
         for (var transaction in transactions) {
           if (transaction.type == TransactionType.income) {
-            final monthIndex = transaction.date.month - 1; // 0-11
+            final monthIndex = transaction.date.month - 1;
             if (monthIndex >= 0 && monthIndex < 12) {
               monthlyIncomes[monthIndex] += transaction.money;
             }
@@ -643,15 +582,12 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
     }
   }
 
-  // 获取趋势图表宽度
   double _getTrendChartWidth(int dataCount) {
-    // 确保最小宽度，避免月度图表过窄
     final minWidth = 300.0;
     final calculatedWidth = (dataCount * 60).toDouble();
     return calculatedWidth > minWidth ? calculatedWidth : minWidth;
   }
 
-  // 获取趋势标签
   String _getTrendLabel(int index) {
     switch (_currentPeriod) {
       case AnalysisPeriod.weekly:
@@ -680,13 +616,11 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
     }
   }
 
-  // 根据时间段过滤交易数据
   List<Transaction> _filterTransactionsByPeriod(AnalysisPeriod period) {
     final now = DateTime.now();
 
     switch (period) {
       case AnalysisPeriod.weekly:
-        // 获取本周开始时间（周一）
         final weekStart = DateTime(
           now.year,
           now.month,
@@ -702,7 +636,6 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
             .toList();
 
       case AnalysisPeriod.monthly:
-        // 获取本月开始和结束时间
         final monthStart = DateTime(now.year, now.month, 1);
         final monthEnd = DateTime(now.year, now.month + 1, 1);
         return _transactions
@@ -712,7 +645,6 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
             .toList();
 
       case AnalysisPeriod.yearly:
-        // 获取本年开始和结束时间
         final yearStart = DateTime(now.year, 1, 1);
         final yearEnd = DateTime(now.year + 1, 1, 1);
         return _transactions
@@ -721,7 +653,6 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
     }
   }
 
-  // 计算统计数据
   AnalysisStats _calculateStatistics(List<Transaction> transactions) {
     double totalIncome = 0;
     double totalExpense = 0;
@@ -747,7 +678,6 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
     );
   }
 
-  // 构建概览卡片
   Widget _buildOverviewCard(AnalysisStats stats) {
     return Card(
       child: Padding(
@@ -787,7 +717,6 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
     );
   }
 
-  // 构建统计项目
   Widget _buildStatItem(String title, String value, Color color) {
     return Column(
       children: [
@@ -804,7 +733,6 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
     );
   }
 
-  // 构建收支对比图表
   Widget _buildIncomeExpenseChart(AnalysisStats stats) {
     final maxValue = [
       stats.totalIncome,
@@ -823,16 +751,16 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
               height: 200,
               child: BarChart(
                 BarChartData(
-                  maxY: maxValue * 1.8, // 给顶部留些空间 (同步修改)
+                  maxY: maxValue * 1.8,
                   barGroups: [
                     BarChartGroupData(
                       x: 0,
                       barRods: [
                         BarChartRodData(
                           toY: stats.totalIncome,
-                          color: Theme.of(context).colorScheme.tertiary, // 收入颜色
+                          color: Theme.of(context).colorScheme.tertiary,
                           width: 15,
-                          borderRadius: BorderRadius.circular(20), // 同步修改：添加圆角
+                          borderRadius: BorderRadius.circular(20),
                         ),
                       ],
                     ),
@@ -841,37 +769,29 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                       barRods: [
                         BarChartRodData(
                           toY: stats.totalExpense,
-                          color: Theme.of(context).colorScheme.primary, // 支出颜色
+                          color: Theme.of(context).colorScheme.primary,
                           width: 15,
-                          borderRadius: BorderRadius.circular(20), // 同步修改：添加圆角
+                          borderRadius: BorderRadius.circular(20),
                         ),
                       ],
                     ),
                   ],
                   barTouchData: BarTouchData(
-                    // 同步修改：添加触摸提示
                     enabled: true,
                     touchTooltipData: BarTouchTooltipData(
                       tooltipBorderRadius: BorderRadius.circular(15),
                       tooltipPadding: EdgeInsets.all(5),
                       getTooltipColor: (group) {
-                        // 根据 x 轴索引决定颜色
                         return group.x == 0
-                            ? Theme.of(context)
-                                  .colorScheme
-                                  .tertiaryContainer // 收入对应颜色
-                            : Theme.of(
-                                context,
-                              ).colorScheme.primaryContainer; // 支出对应颜色
+                            ? Theme.of(context).colorScheme.tertiaryContainer
+                            : Theme.of(context).colorScheme.primaryContainer;
                       },
                       getTooltipItem: (group, groupIndex, rod, rodIndex) {
                         String label = groupIndex == 0 ? '收入' : '支出';
                         final value = rod.toY;
                         Color textColor = groupIndex == 0
-                            ? Theme.of(context)
-                                  .colorScheme
-                                  .tertiary // 收入文字颜色
-                            : Theme.of(context).colorScheme.primary; // 支出文字颜色
+                            ? Theme.of(context).colorScheme.tertiary
+                            : Theme.of(context).colorScheme.primary;
                         return BarTooltipItem(
                           '$label\n¥ ${value.toStringAsFixed(2)}',
                           TextStyle(color: textColor, fontSize: 12),
@@ -923,9 +843,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                       ),
                     ),
                     topTitles: AxisTitles(
-                      sideTitles: SideTitles(
-                        showTitles: false,
-                      ), // 隐藏顶部横轴 (同步修改)
+                      sideTitles: SideTitles(showTitles: false),
                     ),
                     rightTitles: AxisTitles(
                       sideTitles: SideTitles(showTitles: false),
@@ -938,7 +856,6 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                     drawVerticalLine: false,
                     horizontalInterval: maxValue > 0 ? maxValue / 5 : 1,
                   ),
-                  // 移除触摸交互配置，只保留基本图表
                 ),
               ),
             ),
@@ -948,7 +865,6 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
     );
   }
 
-  // 构建分类支出饼图
   Widget _buildCategoryExpenseChart(List<Transaction> transactions) {
     final categoryData = _calculateCategoryExpense(transactions);
 
@@ -973,24 +889,23 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                         (data) => PieChartSectionData(
                           value: data.amount,
                           title:
-                              '${data.category}\n${data.percentage.toStringAsFixed(1)} %', // 显示百分比
+                              '${data.category}\n${data.percentage.toStringAsFixed(1)} %',
                           titleStyle: TextStyle(
                             color: Theme.of(context).colorScheme.onPrimary,
                             fontSize: 10,
-                            fontWeight: FontWeight.bold, // 加粗标题更清晰
+                            fontWeight: FontWeight.bold,
                           ),
                           color: data.color,
                           showTitle: true,
                         ),
                       )
                       .toList(),
-                  centerSpaceRadius: 60, // 中心圆环
+                  centerSpaceRadius: 60,
                   pieTouchData: PieTouchData(enabled: true),
                 ),
               ),
             ),
             const SizedBox(height: 16),
-            // 分类图例
             Wrap(
               spacing: 8,
               runSpacing: 4,
@@ -1022,13 +937,11 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
     );
   }
 
-  // 计算分类支出
   List<CategoryExpenseData> _calculateCategoryExpense(
     List<Transaction> transactions,
   ) {
     final expenseMap = <String, double>{};
 
-    // 统计各分类支出
     for (var transaction in transactions) {
       if (transaction.type == TransactionType.expense) {
         final category = _getCategoryName(transaction.name);
@@ -1036,12 +949,10 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
       }
     }
 
-    // 如果没有支出数据，返回空列表
     if (expenseMap.isEmpty) {
       return [];
     }
 
-    // 计算总支出
     final totalExpense = expenseMap.values.fold(
       0.0,
       (sum, amount) => sum + amount,
@@ -1074,7 +985,6 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
     return result;
   }
 
-  // 构建最高收入支出卡片
   Widget _buildHighestTransactionsCard(List<Transaction> transactions) {
     final highestIncome = _getHighestIncomeTransaction(transactions);
     final highestExpense = _getHighestExpenseTransaction(transactions);
@@ -1152,7 +1062,6 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
     );
   }
 
-  // 获取最高收入交易
   Transaction? _getHighestIncomeTransaction(List<Transaction> transactions) {
     Transaction? highest;
     for (var transaction in transactions) {
@@ -1165,7 +1074,6 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
     return highest;
   }
 
-  // 获取最高支出交易
   Transaction? _getHighestExpenseTransaction(List<Transaction> transactions) {
     Transaction? highest;
     for (var transaction in transactions) {
@@ -1178,12 +1086,10 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
     return highest;
   }
 
-  // 格式化交易日期
   String _formatTransactionDate(DateTime date) {
     return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
   }
 
-  // 构建详细统计
   Widget _buildDetailedStats(AnalysisStats stats) {
     return Card(
       child: Padding(
@@ -1219,7 +1125,6 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
     );
   }
 
-  // 构建详情行
   Widget _buildDetailRow(String label, String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
@@ -1236,7 +1141,6 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
     );
   }
 
-  // 获取时间段标题
   String _getPeriodTitle(AnalysisPeriod period) {
     switch (period) {
       case AnalysisPeriod.weekly:
@@ -1249,10 +1153,8 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
   }
 }
 
-// 枚举：分析时间段
 enum AnalysisPeriod { weekly, monthly, yearly }
 
-// 统计数据模型
 class AnalysisStats {
   final double totalIncome;
   final double totalExpense;
@@ -1269,7 +1171,6 @@ class AnalysisStats {
   });
 }
 
-// 分类支出数据模型
 class CategoryExpenseData {
   final String category;
   final double amount;
@@ -1284,7 +1185,6 @@ class CategoryExpenseData {
   });
 }
 
-// 分类收入数据模型
 class CategoryIncomeData {
   final String category;
   final double amount;

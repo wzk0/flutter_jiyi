@@ -28,22 +28,18 @@ class Fab extends StatelessWidget {
 
     if (result != null) {
       try {
-        // 保存到数据库
         await DatabaseService.instance.insertTransaction(result);
 
-        // 通知父组件数据已更新
         if (onTransactionAdded != null) {
           onTransactionAdded!();
         }
 
-        // 显示成功提示
         if (context.mounted) {
           ScaffoldMessenger.of(
             context,
           ).showSnackBar(const SnackBar(content: Text('添加成功')));
         }
       } catch (e) {
-        // 显示错误提示
         if (context.mounted) {
           ScaffoldMessenger.of(
             context,

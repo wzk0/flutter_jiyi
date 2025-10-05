@@ -1,6 +1,5 @@
-// services/data_export_service.dart
 import 'dart:convert';
-import 'package:flutter/foundation.dart';
+import 'dart:typed_data';
 import 'package:jiyi/models/transaction.dart';
 import 'package:jiyi/services/database_service.dart';
 import 'package:archive/archive.dart';
@@ -10,96 +9,121 @@ class DataExportService {
 
   DataExportService._();
 
-  // 导出数据为加密字符串
   Future<String> exportDataToString() async {
     try {
-      // 1. 获取所有交易数据
       final transactions = await DatabaseService.instance.getTransactions();
 
-      // 2. 转换为可序列化的Map列表
       final List<Map<String, dynamic>> dataList = transactions.map((t) {
         return {
           'id': t.id,
           'name': t.name,
           'money': t.money,
           'date': t.date.toIso8601String(),
-          'type': t.type == TransactionType.income ? 'income' : 'expense',
+          'type': t.type.toString(),
         };
       }).toList();
 
-      // 3. 转换为JSON字符串
       final jsonString = jsonEncode(dataList);
 
-      // 4. 压缩数据
-      final compressedData = _compressString(jsonString);
+      final encryptedString = base64Encode(utf8.encode(jsonString));
 
-      // 5. 转换为Base64字符串
-      final base64String = base64Encode(compressedData);
+      final compressedData = _compressString(encryptedString);
+      if (compressedData == null) {
+        throw Exception("压缩数据失败");
+      }
 
-      return base64String;
+      final encodedString = base64Encode(compressedData);
+
+      return encodedString;
     } catch (e) {
-      throw Exception('导出数据失败: $e');
+      rethrow;
     }
   }
 
-  // 从字符串导入数据
-  Future<bool> importDataFromString(String dataString) async {
+  Future<bool> importDataFromString(String encodedString) async {
     try {
-      // 1. Base64解码
-      final compressedData = base64Decode(dataString);
+      final compressedData = base64Decode(encodedString);
 
-      // 2. 解压缩
-      final jsonString = _decompressString(compressedData);
+      final decompressedString = _decompressString(compressedData);
+      if (decompressedString == null) {
+        throw Exception("解压缩数据失败");
+      }
 
-      // 3. 解析JSON
-      final List<dynamic> dataList = jsonDecode(jsonString);
+      final jsonString = utf8.decode(base64Decode(decompressedString));
 
-      // 4. 转换为Transaction对象并保存到数据库
+      final List<dynamic> decodedList = jsonDecode(jsonString);
+      final List<Transaction> transactions = decodedList
+          .map(
+            (json) => Transaction(
+              id: json['id'],
+              name: json['name'],
+              money: json['money'],
+              date: DateTime.parse(json['date']),
+              type: json['type'].toString().contains('income')
+                  ? TransactionType.income
+                  : TransactionType.expense,
+            ),
+          )
+          .toList();
+
       int importedCount = 0;
-      for (var item in dataList) {
-        final transaction = Transaction(
-          id: item['id'],
-          name: item['name'],
-          money: (item['money'] as num).toDouble(),
-          date: DateTime.parse(item['date']),
-          type: item['type'] == 'income'
-              ? TransactionType.income
-              : TransactionType.expense,
-        );
-
-        // 检查是否已存在该ID的记录
+      for (var transaction in transactions) {
         final existing = await DatabaseService.instance.getTransactionById(
           transaction.id,
         );
         if (existing == null) {
-          // 如果不存在则插入新记录
           await DatabaseService.instance.insertTransaction(transaction);
           importedCount++;
         } else {
-          // 如果存在则更新记录
           await DatabaseService.instance.updateTransaction(transaction);
           importedCount++;
         }
       }
 
-      debugPrint('成功导入 $importedCount 条记录');
-      return true;
+      return importedCount > 0;
     } catch (e) {
-      throw Exception('导入数据失败: $e');
+      rethrow;
     }
   }
 
-  // 压缩字符串
-  Uint8List _compressString(String data) {
-    final encoder = GZipEncoder();
-    final bytes = utf8.encode(data);
-    return Uint8List.fromList(encoder.encode(bytes));
+  Uint8List? _compressString(String str) {
+    try {
+      final encoder = ZipEncoder();
+      final archive = Archive();
+      final contentBytes = utf8.encode(str);
+      final archiveFile = ArchiveFile(
+        'data.txt',
+        contentBytes.length,
+        contentBytes,
+      );
+      archive.addFile(archiveFile);
+      final compressedBytesNullable = encoder.encode(archive);
+      if (compressedBytesNullable != null) {
+        return Uint8List.fromList(compressedBytesNullable);
+      } else {
+        return null;
+      }
+    } catch (e) {
+      return null;
+    }
   }
 
-  // 解压缩字符串
-  String _decompressString(Uint8List compressedData) {
-    final decoder = GZipDecoder();
-    final decompressed = decoder.decodeBytes(compressedData);
-    return utf8.decode(decompressed);
+  String? _decompressString(Uint8List compressedData) {
+    try {
+      final decoder = ZipDecoder();
+      final archive = decoder.decodeBytes(compressedData);
+      final file = archive.findFile('data.txt');
+      if (file != null) {
+        if (file.content is List<int>) {
+          return utf8.decode(file.content as List<int>);
+        } else {
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (e) {
+      return null;
+    }
   }
 }

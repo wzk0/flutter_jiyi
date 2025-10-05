@@ -16,10 +16,8 @@ class ExpdCardListtileWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 根据 bgcolor 决定图标
     final icon = bgcolor ? Icons.wallet : Icons.money;
 
-    // 根据 leading 决定颜色
     final isIncome = leading == '收入';
     final color = isIncome
         ? Theme.of(context).colorScheme.tertiary
