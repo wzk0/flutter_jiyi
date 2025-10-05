@@ -1,9 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:jiyi/services/bill_import_service.dart';
 import 'package:jiyi/services/update_service.dart';
 import 'package:jiyi/views/ai_page/ai_page.dart';
-import 'package:jiyi/views/home_page/bill_import_dialog.dart';
 import 'package:jiyi/views/home_page/drawer/drawer_title_widget.dart';
 import 'package:jiyi/views/home_page/drawer/expd_card/expd_card_highest_widget.dart';
 import 'package:jiyi/views/home_page/drawer/expd_card/expd_card_listtile_widget.dart';
@@ -278,60 +276,6 @@ class _DrawerWidgetState extends State<DrawerWidget> {
                       onPressed: _checkForUpdates,
                       icon: Icon(Icons.system_update),
                       label: Text('检查更新'),
-                    ),
-                    FilledButton.tonalIcon(
-                      onPressed: () {
-                        showDialog(
-                          context: context,
-                          builder: (context) => BillImportDialog(
-                            onImport:
-                                (
-                                  List<Transaction> transactions,
-                                  int successCount,
-                                  int duplicateCount,
-                                ) async {
-                                  if (transactions.isNotEmpty) {
-                                    try {
-                                      final result = await BillImportService
-                                          .instance
-                                          .batchInsertTransactions(
-                                            transactions,
-                                          );
-                                      int actualSuccessCount =
-                                          result.successCount;
-                                      int actualDuplicateCount =
-                                          result.duplicateCount;
-
-                                      String message =
-                                          '成功导入 $actualSuccessCount 条';
-                                      if (actualDuplicateCount > 0) {
-                                        message +=
-                                            ', $actualDuplicateCount 条时间戳相同数据未导入';
-                                      }
-
-                                      if (context.mounted) {
-                                        ScaffoldMessenger.of(
-                                          context,
-                                        ).showSnackBar(
-                                          SnackBar(content: Text(message)),
-                                        );
-                                      }
-                                    } catch (e) {
-                                      if (context.mounted) {
-                                        ScaffoldMessenger.of(
-                                          context,
-                                        ).showSnackBar(
-                                          SnackBar(content: Text('导入失败: $e')),
-                                        );
-                                      }
-                                    }
-                                  }
-                                },
-                          ),
-                        );
-                      },
-                      icon: Icon(Icons.file_upload),
-                      label: Text('导入账单'),
                     ),
                   ],
                 ),
