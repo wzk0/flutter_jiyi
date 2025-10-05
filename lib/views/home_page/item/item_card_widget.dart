@@ -119,7 +119,7 @@ class ItemCardWidget extends StatelessWidget {
                                     ? [
                                         (name.split('-').last).length > 6
                                             ? SizedBox(
-                                                width: 95,
+                                                width: 90,
                                                 child: SingleChildScrollView(
                                                   scrollDirection:
                                                       Axis.horizontal,
@@ -212,9 +212,9 @@ class ItemCardWidget extends StatelessWidget {
                                         ),
                                       ]
                                     : [
-                                        (name.split('-').last).length > 10
+                                        (name.split('-').last).length > 6
                                             ? SizedBox(
-                                                width: 100,
+                                                width: 90,
                                                 child: SingleChildScrollView(
                                                   scrollDirection:
                                                       Axis.horizontal,
@@ -235,7 +235,20 @@ class ItemCardWidget extends StatelessWidget {
                                                   ),
                                                 ),
                                               )
-                                            : SizedBox(),
+                                            : Text(
+                                                name.split('-').last,
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: isCost
+                                                      ? Theme.of(
+                                                          context,
+                                                        ).colorScheme.primary
+                                                      : Theme.of(
+                                                          context,
+                                                        ).colorScheme.tertiary,
+                                                ),
+                                              ),
                                         Row(
                                           mainAxisSize: MainAxisSize.min,
                                           spacing: 5,
