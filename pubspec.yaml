@@ -1,7 +1,7 @@
 name: jiyi
 description: "记易, 让记账更容易."
 publish_to: 'none' 
-version: 0.0.33+0.0.1
+version: 0.0.34+0.0.1
 
 environment:
   sdk: ^3.9.0
@@ -23,6 +23,10 @@ dependencies:
   clipboard: ^2.0.2
   http: ^1.5.0
   characters: ^1.4.0
+  excel: ^4.0.6
+  file_picker: ^10.3.3
+  crypto: ^3.0.6
+  flutter_gbk2utf8: ^1.0.1
 
 dev_dependencies:
   flutter_test:

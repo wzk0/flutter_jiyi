@@ -54,7 +54,7 @@ class ItemCardWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List>(
-      future: _getHabitPreference(),
+      future: _getPreference(),
       builder: (context, snapshot) {
         final bool isHabitEnabled = snapshot.data?[0] ?? false;
         final bool isMoneyPosition = snapshot.data?[1] ?? false;
@@ -117,126 +117,170 @@ class ItemCardWidget extends StatelessWidget {
                                 spacing: 5,
                                 children: name.contains('-')
                                     ? [
-                                        Text(
-                                          (name.split('-').last).length > 10
-                                              ? '${(name.split('-').last).substring(0, 9)}...'
-                                              : name.split('-').last,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                            color: isCost
-                                                ? Theme.of(
-                                                    context,
-                                                  ).colorScheme.primary
-                                                : Theme.of(
-                                                    context,
-                                                  ).colorScheme.tertiary,
-                                          ),
-                                        ),
-                                        TagWidget(
-                                          tag: isCost ? '支出' : '收入',
-                                          bgcolor: isCost
-                                              ? Theme.of(
-                                                  context,
-                                                ).colorScheme.primaryContainer
-                                              : Theme.of(
-                                                  context,
-                                                ).colorScheme.tertiaryContainer,
-                                          txcolor: isCost
-                                              ? Theme.of(
-                                                  context,
-                                                ).colorScheme.primary
-                                              : Theme.of(
-                                                  context,
-                                                ).colorScheme.tertiary,
-                                        ),
-                                        TagWidget(
-                                          tag: name.split('-').first,
-                                          bgcolor: isCost
-                                              ? Theme.of(
-                                                  context,
-                                                ).colorScheme.primaryContainer
-                                              : Theme.of(
-                                                  context,
-                                                ).colorScheme.tertiaryContainer,
-                                          txcolor: isCost
-                                              ? Theme.of(
-                                                  context,
-                                                ).colorScheme.primary
-                                              : Theme.of(
-                                                  context,
-                                                ).colorScheme.tertiary,
-                                        ),
-                                        isMoneyPosition
-                                            ? SizedBox()
-                                            : TagWidget(
-                                                tag: '¥ $money',
-                                                bgcolor: Theme.of(context)
-                                                    .colorScheme
-                                                    .secondaryContainer,
-                                                txcolor: Theme.of(
-                                                  context,
-                                                ).colorScheme.secondary,
+                                        (name.split('-').last).length > 6
+                                            ? SizedBox(
+                                                width: 95,
+                                                child: SingleChildScrollView(
+                                                  scrollDirection:
+                                                      Axis.horizontal,
+                                                  child: Text(
+                                                    name.split('-').last,
+                                                    style: TextStyle(
+                                                      fontSize: 16,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color: isCost
+                                                          ? Theme.of(context)
+                                                                .colorScheme
+                                                                .primary
+                                                          : Theme.of(context)
+                                                                .colorScheme
+                                                                .tertiary,
+                                                    ),
+                                                  ),
+                                                ),
+                                              )
+                                            : Text(
+                                                name.split('-').last,
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: isCost
+                                                      ? Theme.of(
+                                                          context,
+                                                        ).colorScheme.primary
+                                                      : Theme.of(
+                                                          context,
+                                                        ).colorScheme.tertiary,
+                                                ),
                                               ),
+                                        Row(
+                                          spacing: 5,
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            TagWidget(
+                                              tag: isCost ? '支出' : '收入',
+                                              bgcolor: isCost
+                                                  ? Theme.of(context)
+                                                        .colorScheme
+                                                        .primaryContainer
+                                                  : Theme.of(context)
+                                                        .colorScheme
+                                                        .tertiaryContainer,
+                                              txcolor: isCost
+                                                  ? Theme.of(
+                                                      context,
+                                                    ).colorScheme.primary
+                                                  : Theme.of(
+                                                      context,
+                                                    ).colorScheme.tertiary,
+                                            ),
+                                            TagWidget(
+                                              tag:
+                                                  (name.split('-').first)
+                                                          .length >
+                                                      4
+                                                  ? '${(name.split('-').first).substring(0, 4)}...'
+                                                  : name.split('-').first,
+                                              bgcolor: isCost
+                                                  ? Theme.of(context)
+                                                        .colorScheme
+                                                        .primaryContainer
+                                                  : Theme.of(context)
+                                                        .colorScheme
+                                                        .tertiaryContainer,
+                                              txcolor: isCost
+                                                  ? Theme.of(
+                                                      context,
+                                                    ).colorScheme.primary
+                                                  : Theme.of(
+                                                      context,
+                                                    ).colorScheme.tertiary,
+                                            ),
+                                            isMoneyPosition
+                                                ? SizedBox()
+                                                : TagWidget(
+                                                    tag: '¥ $money',
+                                                    bgcolor: Theme.of(context)
+                                                        .colorScheme
+                                                        .secondaryContainer,
+                                                    txcolor: Theme.of(
+                                                      context,
+                                                    ).colorScheme.secondary,
+                                                  ),
+                                          ],
+                                        ),
                                       ]
                                     : [
-                                        Text(
-                                          (name.split('-').last).length > 10
-                                              ? '${(name.split('-').last).substring(0, 9)}...'
-                                              : name.split('-').last,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                            color: isCost
-                                                ? Theme.of(
-                                                    context,
-                                                  ).colorScheme.primary
-                                                : Theme.of(
-                                                    context,
-                                                  ).colorScheme.tertiary,
-                                          ),
-                                        ),
-                                        TagWidget(
-                                          tag: isCost ? '支出' : '收入',
-                                          bgcolor: isCost
-                                              ? Theme.of(
-                                                  context,
-                                                ).colorScheme.primaryContainer
-                                              : Theme.of(
-                                                  context,
-                                                ).colorScheme.tertiaryContainer,
-                                          txcolor: isCost
-                                              ? Theme.of(
-                                                  context,
-                                                ).colorScheme.primary
-                                              : Theme.of(
-                                                  context,
-                                                ).colorScheme.tertiary,
-                                        ),
-                                        name.contains('-')
-                                            ? TagWidget(
-                                                tag: name[0],
-                                                bgcolor: Theme.of(context)
-                                                    .colorScheme
-                                                    .secondaryContainer,
-                                                txcolor: Theme.of(
-                                                  context,
-                                                ).colorScheme.secondary,
+                                        (name.split('-').last).length > 10
+                                            ? SizedBox(
+                                                width: 100,
+                                                child: SingleChildScrollView(
+                                                  scrollDirection:
+                                                      Axis.horizontal,
+                                                  child: Text(
+                                                    name.split('-').last,
+                                                    style: TextStyle(
+                                                      fontSize: 16,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color: isCost
+                                                          ? Theme.of(context)
+                                                                .colorScheme
+                                                                .primary
+                                                          : Theme.of(context)
+                                                                .colorScheme
+                                                                .tertiary,
+                                                    ),
+                                                  ),
+                                                ),
                                               )
                                             : SizedBox(),
-                                        isMoneyPosition
-                                            ? SizedBox()
-                                            : TagWidget(
-                                                tag: '¥ $money',
-                                                bgcolor: Theme.of(context)
-                                                    .colorScheme
-                                                    .secondaryContainer,
-                                                txcolor: Theme.of(
-                                                  context,
-                                                ).colorScheme.secondary,
-                                              ),
+                                        Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          spacing: 5,
+                                          children: [
+                                            TagWidget(
+                                              tag: isCost ? '支出' : '收入',
+                                              bgcolor: isCost
+                                                  ? Theme.of(context)
+                                                        .colorScheme
+                                                        .primaryContainer
+                                                  : Theme.of(context)
+                                                        .colorScheme
+                                                        .tertiaryContainer,
+                                              txcolor: isCost
+                                                  ? Theme.of(
+                                                      context,
+                                                    ).colorScheme.primary
+                                                  : Theme.of(
+                                                      context,
+                                                    ).colorScheme.tertiary,
+                                            ),
+                                            name.contains('-')
+                                                ? TagWidget(
+                                                    tag: name.split('-').first,
+                                                    bgcolor: Theme.of(context)
+                                                        .colorScheme
+                                                        .secondaryContainer,
+                                                    txcolor: Theme.of(
+                                                      context,
+                                                    ).colorScheme.secondary,
+                                                  )
+                                                : SizedBox(),
+                                            isMoneyPosition
+                                                ? SizedBox()
+                                                : TagWidget(
+                                                    tag: '¥ $money',
+                                                    bgcolor: Theme.of(context)
+                                                        .colorScheme
+                                                        .secondaryContainer,
+                                                    txcolor: Theme.of(
+                                                      context,
+                                                    ).colorScheme.secondary,
+                                                  ),
+                                          ],
+                                        ),
                                       ],
                               ),
                               Row(
@@ -309,7 +353,7 @@ class ItemCardWidget extends StatelessWidget {
     return prefs.getBool('is_icon') ?? false;
   }
 
-  Future<List> _getHabitPreference() async {
+  Future<List> _getPreference() async {
     final prefs = await SharedPreferences.getInstance();
     bool habit = prefs.getBool('habit') ?? false;
     bool moneyposition = prefs.getBool('moneyposition') ?? false;
