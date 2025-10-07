@@ -350,36 +350,54 @@ class _BillImportDialogState extends State<BillImportDialog> {
         children: [
           const Text('预览数据 (勾选要导入的项目):'),
           const SizedBox(height: 10),
-          Row(
-            spacing: 8,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              CategoryChipWidget(
-                title: '全部',
-                onTap: () => _onFilterButtonPressed(0),
-              ),
-              CategoryChipWidget(
-                title: '今日',
-                onTap: () => _onFilterButtonPressed(1),
-              ),
-              CategoryChipWidget(
-                title: '近三天',
-                onTap: () => _onFilterButtonPressed(3),
-              ),
-              CategoryChipWidget(
-                title: '近一周',
-                onTap: () => _onFilterButtonPressed(7),
-              ),
-            ],
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              spacing: 8,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CategoryChipWidget(
+                  title: '全部',
+                  onTap: () => _onFilterButtonPressed(0),
+                ),
+                CategoryChipWidget(
+                  title: '今日',
+                  onTap: () => _onFilterButtonPressed(1),
+                ),
+                CategoryChipWidget(
+                  title: '近两天',
+                  onTap: () => _onFilterButtonPressed(2),
+                ),
+                CategoryChipWidget(
+                  title: '近三天',
+                  onTap: () => _onFilterButtonPressed(3),
+                ),
+                CategoryChipWidget(
+                  title: '近一周',
+                  onTap: () => _onFilterButtonPressed(7),
+                ),
+                CategoryChipWidget(
+                  title: '近十天',
+                  onTap: () => _onFilterButtonPressed(10),
+                ),
+                CategoryChipWidget(
+                  title: '近三十天',
+                  onTap: () => _onFilterButtonPressed(30),
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: 10),
           if (_selectedFileName != null) ...[
             Text(
               '$_selectedFileName',
+              textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: Theme.of(context).colorScheme.outline,
+                fontSize: 11,
               ),
             ),
+            const SizedBox(height: 10),
             if (_sourceType != null) ...[
               Text(
                 '(可能来源: $_sourceType)',
@@ -399,21 +417,37 @@ class _BillImportDialogState extends State<BillImportDialog> {
                 final transaction = _parsedTransactions[index];
                 final isSelected =
                     _selectedTransactionsMap[transaction.id] ?? false;
-
-                return CheckboxListTile(
+                return ListTile(
                   title: Text(
                     '${transaction.name} - ¥ ${transaction.money.toStringAsFixed(2)}',
-                    style: const TextStyle(fontSize: 14),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: _getTransactionTypeString(transaction.type) == '收入'
+                          ? Theme.of(context).colorScheme.tertiary
+                          : Theme.of(context).colorScheme.primary,
+                    ),
                   ),
                   subtitle: Text(
                     '${transaction.date} (${_getTransactionTypeString(transaction.type)})',
-                    style: const TextStyle(fontSize: 12),
+                    style: const TextStyle(fontSize: 10),
                   ),
-                  value: isSelected,
-                  onChanged: (bool? newValue) {
-                    _onTransactionCheckboxChanged(transaction.id, newValue);
-                  },
+                  trailing: SizedBox(
+                    width: 5,
+                    child: Checkbox(
+                      activeColor:
+                          _getTransactionTypeString(transaction.type) == '收入'
+                          ? Theme.of(context).colorScheme.tertiary
+                          : Theme.of(context).colorScheme.primary,
+                      value: isSelected,
+                      onChanged: (bool? newValue) {
+                        _onTransactionCheckboxChanged(transaction.id, newValue);
+                      },
+                    ),
+                  ),
                   dense: true,
+                  onTap: () {
+                    _onTransactionCheckboxChanged(transaction.id, !isSelected);
+                  },
                 );
               },
             ),
