@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:jiyi/views/calculate_page/calculate_page.dart';
 import 'package:jiyi/views/home_page/drawer/drawer_widget.dart';
 import 'package:jiyi/views/home_page/item/item_list_widget.dart';
@@ -117,15 +118,11 @@ class _WidgetTreeState extends State<WidgetTree> {
       await _loadTransactions();
       await _loadDividerSettings();
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('更新成功')));
+        Fluttertoast.showToast(msg: '更新成功');
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('更新失败: $e')));
+        Fluttertoast.showToast(msg: '更新失败');
       }
     }
   }
@@ -159,15 +156,11 @@ class _WidgetTreeState extends State<WidgetTree> {
       await _loadTransactions();
       await _loadDividerSettings();
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('删除成功')));
+        Fluttertoast.showToast(msg: '删除成功');
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('删除失败: $e')));
+        Fluttertoast.showToast(msg: '删除失败');
       }
     }
   }

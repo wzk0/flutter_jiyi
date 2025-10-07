@@ -1,5 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:jiyi/services/update_service.dart';
 import 'package:jiyi/views/ai_page/ai_page.dart';
 import 'package:jiyi/views/home_page/drawer/drawer_title_widget.dart';
@@ -291,9 +292,7 @@ class _DrawerWidgetState extends State<DrawerWidget> {
     final hasKey = await AIAnalysisService.instance.hasApiKey();
     if (!hasKey) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('请先在设置中输入 Qwen API Key')));
+        Fluttertoast.showToast(msg: '请先在设置中输入 Qwen API Key');
       }
       return;
     }
@@ -339,9 +338,7 @@ class _DrawerWidgetState extends State<DrawerWidget> {
       }
       debugPrint('AI 分析失败: $e');
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('AI 分析失败: $e')));
+        Fluttertoast.showToast(msg: 'AI 分析失败: $e');
       }
     }
   }
@@ -358,35 +355,21 @@ class _DrawerWidgetState extends State<DrawerWidget> {
   }
 
   void _checkForUpdates() async {
-    final snackBar = SnackBar(
-      content: Text('正在检查更新...'),
-      duration: Duration(seconds: 2),
-    );
-    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    Fluttertoast.showToast(msg: '正在检查更新...');
 
     try {
-      final updateInfo = await UpdateService.instance.checkForUpdates('0.0.34');
+      final updateInfo = await UpdateService.instance.checkForUpdates('0.0.35');
 
       if (updateInfo != null && updateInfo.isAvailable) {
         _showUpdateDialog(updateInfo);
       } else {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('当前已是最新版本'),
-              backgroundColor: Theme.of(context).colorScheme.tertiary,
-            ),
-          );
+          Fluttertoast.showToast(msg: '当前已是最新版本');
         }
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('检查更新失败: $e'),
-            backgroundColor: Theme.of(context).colorScheme.primary,
-          ),
-        );
+        Fluttertoast.showToast(msg: '检查更新失败: $e');
       }
     }
   }
@@ -432,9 +415,7 @@ class _DrawerWidgetState extends State<DrawerWidget> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('打开链接失败: $e')));
+        Fluttertoast.showToast(msg: '打开链接失败: $e');
       }
     }
   }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:jiyi/models/transaction.dart';
 import 'package:jiyi/services/bill_import_service.dart';
 import 'package:jiyi/views/analytics_page/analytics_page.dart';
@@ -62,15 +63,11 @@ class BtmAppbarWidget extends StatelessWidget {
                             }
 
                             if (context.mounted) {
-                              ScaffoldMessenger.of(
-                                context,
-                              ).showSnackBar(SnackBar(content: Text(message)));
+                              Fluttertoast.showToast(msg: message);
                             }
                           } catch (e) {
                             if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('导入失败: $e')),
-                              );
+                              Fluttertoast.showToast(msg: '导入失败: $e');
                             }
                           }
                         }

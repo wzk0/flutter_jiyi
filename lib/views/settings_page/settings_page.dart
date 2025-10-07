@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:jiyi/services/ai_service.dart';
@@ -125,15 +126,11 @@ class _SettingsPageState extends State<SettingsPage> {
     if (apiKey.isNotEmpty) {
       await AIAnalysisService.instance.saveApiKey(apiKey);
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('API Key 已保存')));
+        Fluttertoast.showToast(msg: 'API Key 已保存');
       }
     } else {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('请输入有效的 API Key')));
+        Fluttertoast.showToast(msg: '请输入有效的 API Key');
       }
     }
   }
@@ -527,7 +524,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   showAboutDialog(
                     context: context,
                     applicationName: '记易',
-                    applicationVersion: '0.0.34',
+                    applicationVersion: '0.0.35',
                     applicationLegalese: '© 2025 wzk0 & thdbd',
                     applicationIcon: Image.asset(
                       'assets/icon/1024.png',
@@ -587,12 +584,7 @@ class _SettingsPageState extends State<SettingsPage> {
     _saveThemeColor(colorValue);
 
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('主题颜色已更改为${_getColorName(newColor)}, 重启以应用'),
-          duration: const Duration(seconds: 1),
-        ),
-      );
+      Fluttertoast.showToast(msg: '主题颜色已更改为${_getColorName(newColor)}, 重启以应用');
     }
   }
 

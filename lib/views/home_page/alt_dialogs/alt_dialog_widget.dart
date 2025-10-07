@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:jiyi/models/transaction.dart';
 import 'package:jiyi/views/home_page/alt_dialogs/category_chip_widget.dart';
@@ -241,9 +242,7 @@ class _AltDialogWidgetState extends State<AltDialogWidget> {
 
   void _saveTransaction() {
     if (_moneyController.text.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('请填写金额')));
+      Fluttertoast.showToast(msg: '请填写金额');
       return;
     }
 
@@ -260,9 +259,7 @@ class _AltDialogWidgetState extends State<AltDialogWidget> {
 
       Navigator.pop(context, transaction);
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('金额格式错误')));
+      Fluttertoast.showToast(msg: '金额格式错误');
     }
   }
 }

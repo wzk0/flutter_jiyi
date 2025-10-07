@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:jiyi/models/transaction.dart';
 import 'package:jiyi/services/database_service.dart';
 
@@ -37,9 +38,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
         _isLoading = false;
       });
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('加载数据失败: $e')));
+        Fluttertoast.showToast(msg: '加载数据失败: $e');
       }
     }
   }

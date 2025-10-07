@@ -6,7 +6,8 @@ import 'package:jiyi/services/bill_import_service.dart';
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:archive/archive.dart';
-import 'package:flutter_gbk2utf8/flutter_gbk2utf8.dart';
+import 'package:flutter_gbk2utf8/flutter_gbk2utf8.dart' as gbk_decoder;
+import 'package:jiyi/views/home_page/alt_dialogs/category_chip_widget.dart';
 
 class BillImportDialog extends StatefulWidget {
   final Function(List<Transaction>, int, int) onImport;
@@ -19,13 +20,40 @@ class BillImportDialog extends StatefulWidget {
 
 class _BillImportDialogState extends State<BillImportDialog> {
   List<Transaction> _parsedTransactions = [];
-  List<bool> _selectedForImport = [];
+  Map<String, bool> _selectedTransactionsMap = {};
   bool _isLoading = false;
   String _errorMessage = '';
   String? _selectedFileName;
   bool _isZipFile = false;
   String _zipPassword = '';
   String? _sourceType;
+
+  void _onFilterButtonPressed(int days) {
+    setState(() {
+      final now = DateTime.now();
+      DateTime? startDate;
+
+      if (days == 1) {
+        startDate = DateTime(now.year, now.month, now.day);
+      } else if (days > 1) {
+        startDate = DateTime(now.year, now.month, now.day - (days - 1));
+      }
+
+      for (var transaction in _parsedTransactions) {
+        bool shouldBeSelected = false;
+        if (days == 0) {
+          shouldBeSelected = true;
+        } else {
+          shouldBeSelected =
+              !transaction.date.isBefore(startDate!) &&
+              !transaction.date.isAfter(
+                DateTime(now.year, now.month, now.day + 1),
+              );
+        }
+        _selectedTransactionsMap[transaction.id] = shouldBeSelected;
+      }
+    });
+  }
 
   Future<void> _selectAndParseFile() async {
     setState(() {
@@ -35,6 +63,8 @@ class _BillImportDialogState extends State<BillImportDialog> {
       _isZipFile = false;
       _zipPassword = '';
       _sourceType = null;
+      _parsedTransactions = [];
+      _selectedTransactionsMap.clear();
     });
 
     try {
@@ -143,9 +173,12 @@ class _BillImportDialogState extends State<BillImportDialog> {
       String csvContentString;
 
       try {
-        csvContentString = gbk.decode(Uint8List.fromList(csvContentBytes));
+        csvContentString = gbk_decoder.gbk.decode(
+          Uint8List.fromList(csvContentBytes),
+        );
+        debugPrint("使用 gbk 解码成功");
       } catch (gbkError) {
-        debugPrint("gbk2utf8 解码失败: $gbkError, 尝试 UTF-8...");
+        debugPrint("gbk 解码失败: $gbkError, 尝试 UTF-8...");
         try {
           csvContentString = utf8.decode(csvContentBytes);
           debugPrint("使用 UTF-8 成功解码 CSV 文件");
@@ -160,10 +193,7 @@ class _BillImportDialogState extends State<BillImportDialog> {
         final transactions = await BillImportService.instance
             .importAlipayBillFromContent(csvContentString);
         _parsedTransactions = transactions;
-        _selectedForImport = List.generate(
-          transactions.length,
-          (index) => true,
-        );
+        _initializeSelectedTransactionsMap();
         setState(() {
           _isLoading = false;
         });
@@ -172,10 +202,7 @@ class _BillImportDialogState extends State<BillImportDialog> {
         final transactions = await BillImportService.instance
             .importWeChatBillFromContent(csvContentString);
         _parsedTransactions = transactions;
-        _selectedForImport = List.generate(
-          transactions.length,
-          (index) => true,
-        );
+        _initializeSelectedTransactionsMap();
         setState(() {
           _isLoading = false;
         });
@@ -208,13 +235,30 @@ class _BillImportDialogState extends State<BillImportDialog> {
       }
       _sourceType = '微信';
       _parsedTransactions = transactions;
-      _selectedForImport = List.generate(transactions.length, (index) => true);
+      _initializeSelectedTransactionsMap();
       setState(() {
         _isLoading = false;
       });
     } catch (e) {
       rethrow;
     }
+  }
+
+  void _initializeSelectedTransactionsMap() {
+    final newMap = <String, bool>{};
+    for (var transaction in _parsedTransactions) {
+      newMap[transaction.id] = true;
+    }
+    setState(() {
+      _selectedTransactionsMap = newMap;
+    });
+  }
+
+  void _onTransactionCheckboxChanged(String transactionId, bool? newValue) {
+    if (newValue == null) return;
+    setState(() {
+      _selectedTransactionsMap[transactionId] = newValue;
+    });
   }
 
   String _getTransactionTypeString(TransactionType type) {
@@ -231,12 +275,10 @@ class _BillImportDialogState extends State<BillImportDialog> {
           ? Text(_errorMessage)
           : _parsedTransactions.isEmpty
           ? Column(
-              spacing: 10,
               mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 if (_selectedFileName != null) ...[
-                  Text('已选择: $_selectedFileName', textAlign: TextAlign.center),
+                  Text('已选择: $_selectedFileName'),
                   if (_isZipFile && _zipPassword.isNotEmpty) ...[
                     Text(
                       '已输入密码',
@@ -245,75 +287,23 @@ class _BillImportDialogState extends State<BillImportDialog> {
                       ),
                     ),
                   ],
+                  const SizedBox(height: 10),
                 ],
                 FilledButton.tonal(
                   onPressed: _selectAndParseFile,
-                  child: Text('选择 支付宝/微信账单文件'),
+                  child: const Text('选择 支付宝/微信账单文件'),
                 ),
+                const SizedBox(height: 10),
                 Text(
                   '- 支付宝导出的账单为zip格式, 可直接选择导入; 微信为xlsx格式. 选择账单文件后, 记易会自行判断账单来自哪个平台, 并进行分析. 分析完成后您可选择想导入的账目.\n\n- 微信导出账单的方式为: 我 -> 服务 -> 钱包 -> 右上角账单 -> 右上角三点 -> 下载账单 -> 用于个人对账 -> 接收方式为微信 -> 下载xlsx文件即可. \n\n- 支付宝导出账单的方式为: 我的 -> 账单 -> 右上角三点 -> 开具交易流水证明 -> 用于个人对账 -> 发送至邮箱后从邮箱下载zip文件即可(在支付宝首页 -> 最近消息中查看解压密码).',
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.outline,
+                    fontSize: 12,
                   ),
                 ),
               ],
             )
-          : SizedBox(
-              width: double.maxFinite,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const Text('预览数据 (勾选要导入的项目):'),
-                  const SizedBox(height: 10),
-                  if (_selectedFileName != null) ...[
-                    Text(
-                      '$_selectedFileName',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).colorScheme.outline,
-                      ),
-                    ),
-                    if (_sourceType != null) ...[
-                      Text(
-                        '(可能来源: $_sourceType)',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(context).colorScheme.primary,
-                          fontStyle: FontStyle.italic,
-                        ),
-                      ),
-                    ],
-                    const SizedBox(height: 5),
-                  ],
-                  Expanded(
-                    child: ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: _parsedTransactions.length,
-                      itemBuilder: (context, index) {
-                        final transaction = _parsedTransactions[index];
-                        return CheckboxListTile(
-                          title: Text(
-                            '${transaction.name} - ¥ ${transaction.money.toStringAsFixed(2)}',
-                            style: const TextStyle(fontSize: 14),
-                          ),
-                          subtitle: Text(
-                            '${transaction.date} (${_getTransactionTypeString(transaction.type)})',
-                            style: const TextStyle(fontSize: 12),
-                          ),
-                          value: _selectedForImport[index],
-                          onChanged: (bool? newValue) {
-                            if (newValue == null) return;
-                            setState(() {
-                              _selectedForImport[index] = newValue;
-                            });
-                          },
-                          dense: true,
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            ),
+          : _buildPreviewContent(),
       actions: _parsedTransactions.isNotEmpty
           ? [
               TextButton(
@@ -325,9 +315,9 @@ class _BillImportDialogState extends State<BillImportDialog> {
               FilledButton(
                 onPressed: () {
                   final selectedTransactions = <Transaction>[];
-                  for (int i = 0; i < _parsedTransactions.length; i++) {
-                    if (_selectedForImport[i]) {
-                      selectedTransactions.add(_parsedTransactions[i]);
+                  for (var transaction in _parsedTransactions) {
+                    if (_selectedTransactionsMap[transaction.id] ?? false) {
+                      selectedTransactions.add(transaction);
                     }
                   }
                   widget.onImport(
@@ -348,6 +338,88 @@ class _BillImportDialogState extends State<BillImportDialog> {
                 child: const Text('关闭'),
               ),
             ],
+    );
+  }
+
+  Widget _buildPreviewContent() {
+    return SizedBox(
+      width: double.maxFinite,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          const Text('预览数据 (勾选要导入的项目):'),
+          const SizedBox(height: 10),
+          Row(
+            spacing: 8,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CategoryChipWidget(
+                title: '全部',
+                onTap: () => _onFilterButtonPressed(0),
+              ),
+              CategoryChipWidget(
+                title: '今日',
+                onTap: () => _onFilterButtonPressed(1),
+              ),
+              CategoryChipWidget(
+                title: '近三天',
+                onTap: () => _onFilterButtonPressed(3),
+              ),
+              CategoryChipWidget(
+                title: '近一周',
+                onTap: () => _onFilterButtonPressed(7),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          if (_selectedFileName != null) ...[
+            Text(
+              '$_selectedFileName',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.outline,
+              ),
+            ),
+            if (_sourceType != null) ...[
+              Text(
+                '(可能来源: $_sourceType)',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.primary,
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+            ],
+            const SizedBox(height: 5),
+          ],
+          Expanded(
+            child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: _parsedTransactions.length,
+              itemBuilder: (context, index) {
+                final transaction = _parsedTransactions[index];
+                final isSelected =
+                    _selectedTransactionsMap[transaction.id] ?? false;
+
+                return CheckboxListTile(
+                  title: Text(
+                    '${transaction.name} - ¥ ${transaction.money.toStringAsFixed(2)}',
+                    style: const TextStyle(fontSize: 14),
+                  ),
+                  subtitle: Text(
+                    '${transaction.date} (${_getTransactionTypeString(transaction.type)})',
+                    style: const TextStyle(fontSize: 12),
+                  ),
+                  value: isSelected,
+                  onChanged: (bool? newValue) {
+                    _onTransactionCheckboxChanged(transaction.id, newValue);
+                  },
+                  dense: true,
+                );
+              },
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:jiyi/views/home_page/alt_dialogs/alt_dialog_widget.dart';
 import 'package:jiyi/models/transaction.dart';
 import 'package:jiyi/services/database_service.dart';
@@ -35,15 +36,11 @@ class Fab extends StatelessWidget {
         }
 
         if (context.mounted) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(const SnackBar(content: Text('添加成功')));
+          Fluttertoast.showToast(msg: '添加成功');
         }
       } catch (e) {
         if (context.mounted) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text('添加失败: $e')));
+          Fluttertoast.showToast(msg: '添加失败: $e');
         }
       }
     }

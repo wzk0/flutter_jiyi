@@ -1,5 +1,6 @@
 import 'package:clipboard/clipboard.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:jiyi/services/data_export_service.dart';
 
 class ImportExportDialog extends StatefulWidget {
@@ -167,9 +168,7 @@ class _ImportExportDialogState extends State<ImportExportDialog> {
       });
 
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('数据导出成功!')));
+        Fluttertoast.showToast(msg: '数据导出成功!');
       }
     } catch (e) {
       setState(() {
@@ -178,9 +177,7 @@ class _ImportExportDialogState extends State<ImportExportDialog> {
       });
 
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(_message)));
+        Fluttertoast.showToast(msg: _message);
       }
     }
   }
@@ -199,9 +196,7 @@ class _ImportExportDialogState extends State<ImportExportDialog> {
       });
 
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('数据导入成功! 重启即可刷新')));
+        Fluttertoast.showToast(msg: '数据导入成功! 重启即可刷新');
       }
     } catch (e) {
       setState(() {
@@ -210,9 +205,7 @@ class _ImportExportDialogState extends State<ImportExportDialog> {
       });
 
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(_message)));
+        Fluttertoast.showToast(msg: _message);
       }
     }
   }
@@ -220,9 +213,7 @@ class _ImportExportDialogState extends State<ImportExportDialog> {
   void _copyToClipboard() {
     FlutterClipboard.copy(_exportData).then((value) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('已复制到剪贴板')));
+        Fluttertoast.showToast(msg: '已复制到剪贴板');
       }
     });
   }
