@@ -9,6 +9,7 @@ class ItemListWidget extends StatelessWidget {
   final bool showYearDivider;
   final bool showMonthDivider;
   final bool showDayDivider;
+  final double topMoney;
 
   const ItemListWidget({
     super.key,
@@ -18,6 +19,7 @@ class ItemListWidget extends StatelessWidget {
     this.showYearDivider = false,
     this.showMonthDivider = false,
     this.showDayDivider = false,
+    this.topMoney = 0,
   });
 
   String _getChineseWeekday(DateTime date) {
@@ -252,7 +254,9 @@ class ItemListWidget extends StatelessWidget {
           ),
           const Expanded(child: Divider()),
           Text(
-            '收入: ¥ ${stats['income']!.toStringAsFixed(2)} 支出: ¥ ${stats['expense']!.toStringAsFixed(2)}',
+            (topMoney == 0)
+                ? '合计: ¥ ${(stats['income']! - stats['expense']!).toStringAsFixed(2)} (+${stats['income']!.toStringAsFixed(2)}│-${stats['expense']!.toStringAsFixed(2)})'
+                : '剩余: ¥ ${(topMoney - stats['expense']! + stats['income']!).toStringAsFixed(2)} (+${stats['income']!.toStringAsFixed(2)}│-${stats['expense']!.toStringAsFixed(2)})',
             style: TextStyle(
               color: Theme.of(context).colorScheme.outline,
               fontSize: 12,

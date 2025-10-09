@@ -358,7 +358,7 @@ class _DrawerWidgetState extends State<DrawerWidget> {
     Fluttertoast.showToast(msg: '正在检查更新...');
 
     try {
-      final updateInfo = await UpdateService.instance.checkForUpdates('0.0.36');
+      final updateInfo = await UpdateService.instance.checkForUpdates('0.0.37');
 
       if (updateInfo != null && updateInfo.isAvailable) {
         _showUpdateDialog(updateInfo);

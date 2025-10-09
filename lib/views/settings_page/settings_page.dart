@@ -32,12 +32,14 @@ class _SettingsPageState extends State<SettingsPage> {
   bool _settingsLoaded = false;
 
   final TextEditingController _apiKeyController = TextEditingController();
+  final TextEditingController _topMoneyController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _loadSettings();
     _loadApiKey();
+    _loadTopMoney();
   }
 
   Future<void> _loadSettings() async {
@@ -68,6 +70,14 @@ class _SettingsPageState extends State<SettingsPage> {
     final apiKey = await AIAnalysisService.instance.getApiKey();
     if (apiKey != null) {
       _apiKeyController.text = apiKey;
+    }
+  }
+
+  Future<void> _loadTopMoney() async {
+    final prefs = await SharedPreferences.getInstance();
+    final topMoney = prefs.getDouble('topMoney');
+    if (topMoney != null) {
+      _topMoneyController.text = topMoney.toString();
     }
   }
 
@@ -131,6 +141,22 @@ class _SettingsPageState extends State<SettingsPage> {
     } else {
       if (mounted) {
         Fluttertoast.showToast(msg: '请输入有效的 API Key');
+      }
+    }
+  }
+
+  Future<void> _saveTopMoney() async {
+    final topMoneyText = _topMoneyController.text.trim();
+    final double? topMoney = double.tryParse(topMoneyText);
+    if (topMoney != null) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setDouble('topMoney', topMoney);
+      if (mounted) {
+        Fluttertoast.showToast(msg: '每日预算已保存');
+      }
+    } else {
+      if (mounted) {
+        Fluttertoast.showToast(msg: '请输入有效的预算');
       }
     }
   }
@@ -240,7 +266,58 @@ class _SettingsPageState extends State<SettingsPage> {
                   ],
                 ),
               ),
-              Divider(height: 40),
+              const SizedBox(height: 15),
+              Container(
+                padding: EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(30),
+                  color: Theme.of(context).colorScheme.surfaceContainer,
+                ),
+                child: Column(
+                  children: [
+                    TextField(
+                      controller: _topMoneyController,
+                      decoration: InputDecoration(
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                        ),
+                        disabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
+                        ),
+                        labelStyle: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                        labelText: '每日预算',
+                        border: OutlineInputBorder(),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            Icons.save,
+                            color: Theme.of(context).colorScheme.onSurface,
+                            size: 23,
+                          ),
+                          onPressed: _saveTopMoney,
+                        ),
+                        isDense: true,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      '设定每日预算以在日分割线显示每日剩余预算',
+                      style: TextStyle(fontSize: 12),
+                    ),
+                  ],
+                ),
+              ),
+              const Divider(height: 40),
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Text(
@@ -272,6 +349,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   activeThumbColor: Theme.of(context).colorScheme.primary,
                 ),
               ),
+
               Divider(height: 40),
               Padding(
                 padding: const EdgeInsets.all(8.0),
@@ -524,7 +602,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   showAboutDialog(
                     context: context,
                     applicationName: '记易',
-                    applicationVersion: '0.0.36',
+                    applicationVersion: '0.0.37',
                     applicationLegalese: '© 2025 wzk0 & thdbd',
                     applicationIcon: Image.asset(
                       'assets/icon/1024.png',

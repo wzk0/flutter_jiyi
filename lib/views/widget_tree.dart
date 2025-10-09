@@ -27,6 +27,7 @@ class _WidgetTreeState extends State<WidgetTree> {
   bool _showYearDivider = false;
   bool _showMonthDivider = false;
   bool _showDayDivider = false;
+  double _topMoney = 0;
 
   @override
   void initState() {
@@ -41,6 +42,7 @@ class _WidgetTreeState extends State<WidgetTree> {
       _showYearDivider = prefs.getBool('show_year_divider') ?? false;
       _showMonthDivider = prefs.getBool('show_month_divider') ?? false;
       _showDayDivider = prefs.getBool('show_day_divider') ?? false;
+      _topMoney = prefs.getDouble('topMoney') ?? 0.0;
     });
   }
 
@@ -270,6 +272,7 @@ class _WidgetTreeState extends State<WidgetTree> {
                 showYearDivider: _showYearDivider,
                 showMonthDivider: _showMonthDivider,
                 showDayDivider: _showDayDivider,
+                topMoney: _topMoney,
               )
             : ItemListWidget(
                 transactions: _transactions,
@@ -278,6 +281,7 @@ class _WidgetTreeState extends State<WidgetTree> {
                 showYearDivider: _showYearDivider,
                 showMonthDivider: _showMonthDivider,
                 showDayDivider: _showDayDivider,
+                topMoney: _topMoney,
               ),
       ),
       bottomNavigationBar: BtmAppbarWidget(),
